@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 echo ========================================
 echo wxauto API 环境设置脚本
 echo ========================================
@@ -61,8 +60,7 @@ if %errorLevel% equ 0 (
     echo 环境设置完成！
     echo ========================================
     echo 现在可以运行以下命令：
-    echo   启动服务: run.bat
-    echo   安装为Windows服务: install_service.bat (需要管理员权限)
+    echo   启动服务: quick_start.bat
     echo.
 ) else (
     echo.

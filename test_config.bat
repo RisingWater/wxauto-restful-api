@@ -1,28 +1,27 @@
 @echo off
-chcp 936 >nul
 echo ========================================
-echo wxauto API é…ç½®æµ‹è¯•è„šæœ¬
+echo wxauto API ÅäÖÃ²âÊÔ½Å±¾
 echo ========================================
 
-:: æ£€æŸ¥è™šæ‹ŸçŽ¯å¢ƒ
+:: ¼ì²éÐéÄâ»·¾³
 if not exist ".venv\Scripts\python.exe" (
-    echo é”™è¯¯ï¼šæœªæ‰¾åˆ°è™šæ‹ŸçŽ¯å¢ƒ
-    echo è¯·å…ˆè¿è¡Œ setup.bat å®‰è£…çŽ¯å¢ƒ
+    echo ´íÎó£ºÎ´ÕÒµ½ÐéÄâ»·¾³
+    echo ÇëÏÈÔËÐÐ setup.bat °²×°»·¾³
     pause
     exit /b 1
 )
 
-:: æ¿€æ´»è™šæ‹ŸçŽ¯å¢ƒå¹¶è¿è¡Œé…ç½®æµ‹è¯•
-echo æ­£åœ¨æµ‹è¯•é…ç½®ç³»ç»Ÿ...
+:: ¼¤»îÐéÄâ»·¾³²¢ÔËÐÐÅäÖÃ²âÊÔ
+echo ÕýÔÚ²âÊÔÅäÖÃÏµÍ³...
 call .venv\Scripts\activate.bat
 python test_config.py
 
 if %errorLevel% equ 0 (
     echo.
-    echo é…ç½®æµ‹è¯•é€šè¿‡ï¼
+    echo ÅäÖÃ²âÊÔÍ¨¹ý£¡
 ) else (
     echo.
-    echo é…ç½®æµ‹è¯•å¤±è´¥ï¼Œè¯·æ£€æŸ¥é”™è¯¯ä¿¡æ¯
+    echo ÅäÖÃ²âÊÔÊ§°Ü£¬Çë¼ì²é´íÎóÐÅÏ¢
 )
 
 pause 
