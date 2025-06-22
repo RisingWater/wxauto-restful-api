@@ -28,26 +28,7 @@ wxauto-restful-api/
 └── schemas.json          # API模式定义
 ```
 
-## 🚀 一键部署（推荐）
-
-### Windows服务部署（最优雅）
-
-1. **一键部署**（推荐）：
-   ```bash
-   # 右键点击 deploy.bat，选择"以管理员身份运行"
-   deploy.bat
-   ```
-
-2. **分步部署**：
-   ```bash
-   # 步骤1：环境设置
-   setup.bat
-   
-   # 步骤2：安装Windows服务（需要管理员权限）
-   install_service.bat
-   ```
-
-### 手动部署
+## 部署
 
 1. 确保已安装Python 3.11+
 2. 克隆项目仓库
