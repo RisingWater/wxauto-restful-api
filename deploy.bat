@@ -1,54 +1,57 @@
 @echo off
-chcp 65001 >nul
+chcp 936 >nul
 echo ========================================
-echo wxauto API ä¸€é”®éƒ¨ç½²è„šæœ¬
+echo wxauto API Ò»¼ü²¿Êð½Å±¾
 echo ========================================
 
-:: æ£€æŸ¥ç®¡ç†å‘˜æƒé™
+:: ¼ì²é¹ÜÀíÔ±È¨ÏÞ
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo é”™è¯¯ï¼šéœ€è¦ç®¡ç†å‘˜æƒé™è¿è¡Œæ­¤è„šæœ¬
-    echo è¯·å³é”®ç‚¹å‡»æ­¤æ–‡ä»¶ï¼Œé€‰æ‹©"ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ"
+    echo ´íÎó£ºÐèÒª¹ÜÀíÔ±È¨ÏÞÔËÐÐ´Ë½Å±¾
+    echo ÇëÓÒ¼üµã»÷´ËÎÄ¼þ£¬Ñ¡Ôñ"ÒÔ¹ÜÀíÔ±Éí·ÝÔËÐÐ"
     pause
     exit /b 1
 )
 
-echo æ­¥éª¤1: çŽ¯å¢ƒè®¾ç½®...
+echo ²½Öè1: »·¾³ÉèÖÃ...
 call setup.bat
 if %errorLevel% neq 0 (
-    echo çŽ¯å¢ƒè®¾ç½®å¤±è´¥ï¼Œéƒ¨ç½²ç»ˆæ­¢
+    echo »·¾³ÉèÖÃÊ§°Ü£¬²¿ÊðÖÕÖ¹
     pause
     exit /b 1
 )
 
 echo.
-echo æ­¥éª¤2: å®‰è£…WindowsæœåŠ¡...
+echo ²½Öè2: °²×°Windows·þÎñ...
 call install_service.bat
 if %errorLevel% neq 0 (
-    echo æœåŠ¡å®‰è£…å¤±è´¥ï¼Œéƒ¨ç½²ç»ˆæ­¢
+    echo ·þÎñ°²×°Ê§°Ü£¬²¿ÊðÖÕÖ¹
     pause
     exit /b 1
 )
 
 echo.
 echo ========================================
-echo ä¸€é”®éƒ¨ç½²å®Œæˆï¼
+echo Ò»¼ü²¿ÊðÍê³É£¡
 echo ========================================
 echo.
-echo æœåŠ¡ä¿¡æ¯ï¼š
-echo   - æœåŠ¡åç§°: wxautoAPI
-echo   - APIåœ°å€: http://localhost:8000
-echo   - æ–‡æ¡£åœ°å€: http://localhost:8000/docs
-echo   - çŠ¶æ€: è‡ªåŠ¨å¯åŠ¨
+echo ·þÎñÐÅÏ¢£º
+echo   - ·þÎñÃû³Æ: wxautoAPI
+echo   - ÅäÖÃÎÄ¼þ: config.yaml
+echo   - ×´Ì¬: ×Ô¶¯Æô¶¯
 echo.
-echo ç®¡ç†å‘½ä»¤ï¼š
-echo   - å¯åŠ¨æœåŠ¡: net start wxautoAPI
-echo   - åœæ­¢æœåŠ¡: net stop wxautoAPI
-echo   - é‡å¯æœåŠ¡: net stop wxautoAPI && net start wxautoAPI
-echo   - å¸è½½æœåŠ¡: uninstall_service.bat
+echo ¹ÜÀíÃüÁî£º
+echo   - Æô¶¯·þÎñ: net start wxautoAPI
+echo   - Í£Ö¹·þÎñ: net stop wxautoAPI
+echo   - ÖØÆô·þÎñ: net stop wxautoAPI && net start wxautoAPI
+echo   - Ð¶ÔØ·þÎñ: uninstall_service.bat
 echo.
-echo æœåŠ¡å°†åœ¨ç³»ç»Ÿå¯åŠ¨æ—¶è‡ªåŠ¨è¿è¡Œ
-echo å¦‚éœ€ä¿®æ”¹é…ç½®ï¼Œè¯·ç¼–è¾‘ config.yaml æ–‡ä»¶
+echo ÅäÖÃËµÃ÷£º
+echo   - ·þÎñÆ÷¶Ë¿ÚºÍÅäÖÃÇë±à¼­ config.yaml ÎÄ¼þ
+echo   - ÐÞ¸ÄÅäÖÃºóÐèÒªÖØÆô·þÎñ
+echo.
+echo ·þÎñ½«ÔÚÏµÍ³Æô¶¯Ê±×Ô¶¯ÔËÐÐ
+echo ÈçÐèÐÞ¸ÄÅäÖÃ£¬Çë±à¼­ config.yaml ÎÄ¼þ
 echo.
 
 pause 

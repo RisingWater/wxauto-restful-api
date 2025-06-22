@@ -14,4 +14,6 @@ dependencies = [
     "sqlalchemy>=2.0.0",
     "aiomysql>=0.2.0",
     "motor>=3.3.0",
+    "uvicorn>=0.34.3",
+    "python-multipart>=0.0.20",
 ]

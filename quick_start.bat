@@ -1,20 +1,49 @@
 @echo off
-chcp 65001 >nul
-echo ========================================
-echo wxauto API å¿«é€Ÿå¯åŠ¨è„šæœ¬
-echo ========================================
 
-:: æ£€æŸ¥è™šæ‹ŸçŽ¯å¢ƒ
+:: ¼ì²éÐéÄâ»·¾³
 if not exist ".venv\Scripts\python.exe" (
-    echo é”™è¯¯ï¼šæœªæ‰¾åˆ°è™šæ‹ŸçŽ¯å¢ƒ
-    echo è¯·å…ˆè¿è¡Œ setup.bat å®‰è£…çŽ¯å¢ƒ
+    echo    ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+    echo    ¨U                        ´íÎóÐÅÏ¢                               ¨U
+    echo    ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
+    echo.
+    echo    ´íÎó£ºÎ´ÕÒµ½ÐéÄâ»·¾³
+    echo    ÇëÏÈÔËÐÐ setup.bat °²×°»·¾³
+    echo.
     pause
     exit /b 1
 )
 
-:: æ¿€æ´»è™šæ‹ŸçŽ¯å¢ƒå¹¶å¯åŠ¨æœåŠ¡
-echo æ­£åœ¨å¯åŠ¨æœåŠ¡...
+:: ¼ì²éÅäÖÃÎÄ¼þ
+if not exist "config.yaml" (
+    echo    ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+    echo    ¨U                        ¾¯¸æÐÅÏ¢                               ¨U
+    echo    ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
+    echo.
+    echo    ¾¯¸æ£ºÎ´ÕÒµ½config.yamlÅäÖÃÎÄ¼þ£¬½«Ê¹ÓÃÄ¬ÈÏÅäÖÃ
+    echo.
+)
+
+:: ¼¤»îÐéÄâ»·¾³²¢Æô¶¯·þÎñ
+echo    ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+echo    ¨U                        Æô¶¯ÐÅÏ¢                               ¨U
+echo    ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
+echo.
+echo    ÕýÔÚÆô¶¯·þÎñ...
+echo    ½«´Óconfig.yaml¶ÁÈ¡·þÎñÆ÷ÅäÖÃ...
+echo.
 call .venv\Scripts\activate.bat
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+echo.
+echo    ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+echo    ¨U                    wxauto API ¿ìËÙÆô¶¯½Å±¾                    ¨U
+echo    ¨U                                                              ¨U
+echo    ¨U   ¨€¨€¨[    ¨€¨€¨[¨€¨€¨[  ¨€¨€¨[ ¨€¨€¨€¨€¨€¨[ ¨€¨€¨[   ¨€¨€¨[¨€¨€¨€¨€¨€¨€¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨[       ¨U
+echo    ¨U   ¨€¨€¨U    ¨€¨€¨U¨^¨€¨€¨[¨€¨€¨X¨a¨€¨€¨X¨T¨T¨€¨€¨[¨€¨€¨U   ¨€¨€¨U¨^¨T¨T¨€¨€¨X¨T¨T¨a¨€¨€¨X¨T¨T¨T¨€¨€¨[      ¨U
+echo    ¨U   ¨€¨€¨U ¨€¨[ ¨€¨€¨U ¨^¨€¨€¨€¨X¨a ¨€¨€¨€¨€¨€¨€¨€¨U¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U      ¨U
+echo    ¨U   ¨€¨€¨U¨€¨€¨€¨[¨€¨€¨U ¨€¨€¨X¨€¨€¨[ ¨€¨€¨X¨T¨T¨€¨€¨U¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U   ¨€¨€¨U      ¨U
+echo    ¨U   ¨^¨€¨€¨€¨X¨€¨€¨€¨X¨a¨€¨€¨X¨a ¨€¨€¨[¨€¨€¨U  ¨€¨€¨U¨^¨€¨€¨€¨€¨€¨€¨X¨a   ¨€¨€¨U   ¨^¨€¨€¨€¨€¨€¨€¨X¨a      ¨U
+echo    ¨U    ¨^¨T¨T¨a¨^¨T¨T¨a ¨^¨T¨a  ¨^¨T¨a¨^¨T¨a  ¨^¨T¨a ¨^¨T¨T¨T¨T¨T¨a    ¨^¨T¨a    ¨^¨T¨T¨T¨T¨T¨a       ¨U
+echo    ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
+echo.
+python run.py
 
 pause 

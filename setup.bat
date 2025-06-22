@@ -1,75 +1,75 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo wxauto API çŽ¯å¢ƒè®¾ç½®è„šæœ¬
+echo wxauto API »·¾³ÉèÖÃ½Å±¾
 echo ========================================
 
-:: æ£€æŸ¥Pythonç‰ˆæœ¬
-echo æ£€æŸ¥PythonçŽ¯å¢ƒ...
+:: ¼ì²éPython°æ±¾
+echo ¼ì²éPython»·¾³...
 python --version >nul 2>&1
 if %errorLevel% neq 0 (
-    echo é”™è¯¯ï¼šæœªæ‰¾åˆ°Pythonï¼Œè¯·å…ˆå®‰è£…Python 3.11+
-    echo ä¸‹è½½åœ°å€ï¼šhttps://www.python.org/downloads/
+    echo ´íÎó£ºÎ´ÕÒµ½Python£¬ÇëÏÈ°²×°Python 3.11+
+    echo ÏÂÔØµØÖ·£ºhttps://www.python.org/downloads/
     pause
     exit /b 1
 )
 
-:: æ£€æŸ¥uvæ˜¯å¦å®‰è£…
-echo æ£€æŸ¥uvåŒ…ç®¡ç†å™¨...
+:: ¼ì²éuvÊÇ·ñ°²×°
+echo ¼ì²éuv°ü¹ÜÀíÆ÷...
 uv --version >nul 2>&1
 if %errorLevel% neq 0 (
-    echo æ­£åœ¨å®‰è£…uvåŒ…ç®¡ç†å™¨...
+    echo ÕýÔÚ°²×°uv°ü¹ÜÀíÆ÷...
     powershell -Command "irm https://astral.sh/uv/install.ps1 | iex"
     if %errorLevel% neq 0 (
-        echo é”™è¯¯ï¼šuvå®‰è£…å¤±è´¥ï¼Œè¯·æ‰‹åŠ¨å®‰è£…
-        echo å®‰è£…å‘½ä»¤ï¼špip install uv
+        echo ´íÎó£ºuv°²×°Ê§°Ü£¬ÇëÊÖ¶¯°²×°
+        echo °²×°ÃüÁî£ºpip install uv
         pause
         exit /b 1
     )
 )
 
-:: åˆ›å»ºè™šæ‹ŸçŽ¯å¢ƒå¹¶å®‰è£…ä¾èµ–
-echo æ­£åœ¨åˆ›å»ºè™šæ‹ŸçŽ¯å¢ƒå¹¶å®‰è£…ä¾èµ–...
+:: ´´½¨ÐéÄâ»·¾³²¢°²×°ÒÀÀµ
+echo ÕýÔÚ´´½¨ÐéÄâ»·¾³²¢°²×°ÒÀÀµ...
 uv sync
 
 if %errorLevel% neq 0 (
-    echo é”™è¯¯ï¼šä¾èµ–å®‰è£…å¤±è´¥
+    echo ´íÎó£ºÒÀÀµ°²×°Ê§°Ü
     pause
     exit /b 1
 )
 
-:: åˆ›å»ºå¿…è¦çš„ç›®å½•
-echo åˆ›å»ºå¿…è¦çš„ç›®å½•...
+:: ´´½¨±ØÒªµÄÄ¿Â¼
+echo ´´½¨±ØÒªµÄÄ¿Â¼...
 if not exist "data" mkdir data
 if not exist "uploads" mkdir uploads
 if not exist "wxauto_logs" mkdir wxauto_logs
 
-:: æ£€æŸ¥é…ç½®æ–‡ä»¶
+:: ¼ì²éÅäÖÃÎÄ¼þ
 if not exist "config.yaml" (
-    echo è­¦å‘Šï¼šæœªæ‰¾åˆ°config.yamlé…ç½®æ–‡ä»¶
-    echo å°†ä½¿ç”¨é»˜è®¤é…ç½®
+    echo ¾¯¸æ£ºÎ´ÕÒµ½config.yamlÅäÖÃÎÄ¼þ
+    echo ½«Ê¹ÓÃÄ¬ÈÏÅäÖÃ
 )
 
-:: æ¿€æ´»è™šæ‹ŸçŽ¯å¢ƒå¹¶æµ‹è¯•
-echo æµ‹è¯•çŽ¯å¢ƒ...
+:: ¼¤»îÐéÄâ»·¾³²¢²âÊÔ
+echo ²âÊÔ»·¾³...
 call .venv\Scripts\activate.bat
-python -c "import fastapi, wxautox; print('çŽ¯å¢ƒæµ‹è¯•æˆåŠŸï¼')"
+python -c "import fastapi, wxautox; print('»·¾³²âÊÔ³É¹¦£¡')"
 
 if %errorLevel% equ 0 (
     echo.
     echo ========================================
-    echo çŽ¯å¢ƒè®¾ç½®å®Œæˆï¼
+    echo »·¾³ÉèÖÃÍê³É£¡
     echo ========================================
-    echo çŽ°åœ¨å¯ä»¥è¿è¡Œä»¥ä¸‹å‘½ä»¤ï¼š
-    echo   å¯åŠ¨æœåŠ¡: run.bat
-    echo   å®‰è£…ä¸ºWindowsæœåŠ¡: install_service.bat (éœ€è¦ç®¡ç†å‘˜æƒé™)
+    echo ÏÖÔÚ¿ÉÒÔÔËÐÐÒÔÏÂÃüÁî£º
+    echo   Æô¶¯·þÎñ: run.bat
+    echo   °²×°ÎªWindows·þÎñ: install_service.bat (ÐèÒª¹ÜÀíÔ±È¨ÏÞ)
     echo.
 ) else (
     echo.
     echo ========================================
-    echo çŽ¯å¢ƒè®¾ç½®å¤±è´¥ï¼
+    echo »·¾³ÉèÖÃÊ§°Ü£¡
     echo ========================================
-    echo è¯·æ£€æŸ¥é”™è¯¯ä¿¡æ¯å¹¶é‡è¯•
+    echo Çë¼ì²é´íÎóÐÅÏ¢²¢ÖØÊÔ
     echo.
 )
 

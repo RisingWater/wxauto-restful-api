@@ -1,50 +1,50 @@
 @echo off
-chcp 65001 >nul
+chcp 936 >nul
 echo ========================================
-echo wxauto API æœåŠ¡å¸è½½è„šæœ¬
+echo wxauto API ·þÎñÐ¶ÔØ½Å±¾
 echo ========================================
 
-:: æ£€æŸ¥ç®¡ç†å‘˜æƒé™
+:: ¼ì²é¹ÜÀíÔ±È¨ÏÞ
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo é”™è¯¯ï¼šéœ€è¦ç®¡ç†å‘˜æƒé™è¿è¡Œæ­¤è„šæœ¬
-    echo è¯·å³é”®ç‚¹å‡»æ­¤æ–‡ä»¶ï¼Œé€‰æ‹©"ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ"
+    echo ´íÎó£ºÐèÒª¹ÜÀíÔ±È¨ÏÞÔËÐÐ´Ë½Å±¾
+    echo ÇëÓÒ¼üµã»÷´ËÎÄ¼þ£¬Ñ¡Ôñ"ÒÔ¹ÜÀíÔ±Éí·ÝÔËÐÐ"
     pause
     exit /b 1
 )
 
-:: è®¾ç½®å˜é‡
+:: ÉèÖÃ±äÁ¿
 set SERVICE_NAME=wxautoAPI
 
-:: æ£€æŸ¥æœåŠ¡æ˜¯å¦å­˜åœ¨
+:: ¼ì²é·þÎñÊÇ·ñ´æÔÚ
 sc query "%SERVICE_NAME%" >nul 2>&1
 if %errorLevel% neq 0 (
-    echo æœåŠ¡ %SERVICE_NAME% ä¸å­˜åœ¨ï¼Œæ— éœ€å¸è½½
+    echo ·þÎñ %SERVICE_NAME% ²»´æÔÚ£¬ÎÞÐèÐ¶ÔØ
     pause
     exit /b 0
 )
 
-:: åœæ­¢æœåŠ¡
-echo æ­£åœ¨åœæ­¢æœåŠ¡...
+:: Í£Ö¹·þÎñ
+echo ÕýÔÚÍ£Ö¹·þÎñ...
 net stop "%SERVICE_NAME%" >nul 2>&1
 
-:: åˆ é™¤æœåŠ¡
-echo æ­£åœ¨åˆ é™¤æœåŠ¡...
+:: É¾³ý·þÎñ
+echo ÕýÔÚÉ¾³ý·þÎñ...
 sc delete "%SERVICE_NAME%"
 
 if %errorLevel% equ 0 (
     echo.
     echo ========================================
-    echo æœåŠ¡å¸è½½æˆåŠŸï¼
+    echo ·þÎñÐ¶ÔØ³É¹¦£¡
     echo ========================================
-    echo æœåŠ¡ %SERVICE_NAME% å·²è¢«å®Œå…¨ç§»é™¤
+    echo ·þÎñ %SERVICE_NAME% ÒÑ±»ÍêÈ«ÒÆ³ý
     echo.
 ) else (
     echo.
     echo ========================================
-    echo æœåŠ¡å¸è½½å¤±è´¥ï¼
+    echo ·þÎñÐ¶ÔØÊ§°Ü£¡
     echo ========================================
-    echo è¯·æ£€æŸ¥é”™è¯¯ä¿¡æ¯å¹¶é‡è¯•
+    echo Çë¼ì²é´íÎóÐÅÏ¢²¢ÖØÊÔ
     echo.
 )
 

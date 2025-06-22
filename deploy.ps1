@@ -43,7 +43,7 @@ $ServiceDisplayName = "wxauto API Service"
 $ServiceDescription = "微信自动化API服务"
 $AppPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PythonPath = Join-Path $AppPath ".venv\Scripts\python.exe"
-$ScriptPath = Join-Path $AppPath "app\main.py"
+$ScriptPath = Join-Path $AppPath "run.py"
 
 # 检查Python环境
 Write-Host "检查Python环境..." -ForegroundColor Yellow
@@ -104,6 +104,8 @@ foreach ($dir in $directories) {
 # 检查配置文件
 if (-not (Test-Path (Join-Path $AppPath "config.yaml"))) {
     Write-Host "警告：未找到config.yaml配置文件，将使用默认配置" -ForegroundColor Yellow
+} else {
+    Write-Host "找到配置文件: config.yaml" -ForegroundColor Green
 }
 
 # 测试环境
@@ -141,7 +143,7 @@ if (-not $SkipService) {
     }
     
     # 创建服务
-    $binPath = "`"$PythonPath`" -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    $binPath = "`"$PythonPath`" `"$ScriptPath`""
     New-Service -Name $ServiceName -BinaryPathName $binPath -DisplayName $ServiceDisplayName -StartupType Automatic -Description $ServiceDescription
     
     if ($LASTEXITCODE -eq 0) {
@@ -173,8 +175,7 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "服务信息：" -ForegroundColor Cyan
 Write-Host "  - 服务名称: $ServiceName" -ForegroundColor White
-Write-Host "  - API地址: http://localhost:8000" -ForegroundColor White
-Write-Host "  - 文档地址: http://localhost:8000/docs" -ForegroundColor White
+Write-Host "  - 配置文件: config.yaml" -ForegroundColor White
 if (-not $SkipService) {
     Write-Host "  - 状态: 自动启动" -ForegroundColor White
 }
@@ -185,6 +186,10 @@ Write-Host "  - 停止服务: Stop-Service $ServiceName" -ForegroundColor White
 Write-Host "  - 重启服务: Restart-Service $ServiceName" -ForegroundColor White
 Write-Host "  - 查看状态: Get-Service $ServiceName" -ForegroundColor White
 Write-Host "  - 卸载服务: Remove-Service $ServiceName" -ForegroundColor White
+Write-Host ""
+Write-Host "配置说明：" -ForegroundColor Cyan
+Write-Host "  - 服务器端口和配置请编辑 config.yaml 文件" -ForegroundColor White
+Write-Host "  - 修改配置后需要重启服务" -ForegroundColor White
 Write-Host ""
 if (-not $SkipService) {
     Write-Host "服务将在系统启动时自动运行" -ForegroundColor Green

@@ -1,87 +1,94 @@
 @echo off
-chcp 65001 >nul
+chcp 936 >nul
 echo ========================================
-echo wxauto API æœåŠ¡å®‰è£…è„šæœ¬
+echo wxauto API ·þÎñ°²×°½Å±¾
 echo ========================================
 
-:: æ£€æŸ¥ç®¡ç†å‘˜æƒé™
+:: ¼ì²é¹ÜÀíÔ±È¨ÏÞ
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo é”™è¯¯ï¼šéœ€è¦ç®¡ç†å‘˜æƒé™è¿è¡Œæ­¤è„šæœ¬
-    echo è¯·å³é”®ç‚¹å‡»æ­¤æ–‡ä»¶ï¼Œé€‰æ‹©"ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ"
+    echo ´íÎó£ºÐèÒª¹ÜÀíÔ±È¨ÏÞÔËÐÐ´Ë½Å±¾
+    echo ÇëÓÒ¼üµã»÷´ËÎÄ¼þ£¬Ñ¡Ôñ"ÒÔ¹ÜÀíÔ±Éí·ÝÔËÐÐ"
     pause
     exit /b 1
 )
 
-:: è®¾ç½®å˜é‡
+:: ÉèÖÃ±äÁ¿
 set SERVICE_NAME=wxautoAPI
 set SERVICE_DISPLAY_NAME=wxauto API Service
-set SERVICE_DESCRIPTION=å¾®ä¿¡è‡ªåŠ¨åŒ–APIæœåŠ¡
+set SERVICE_DESCRIPTION=Î¢ÐÅ×Ô¶¯»¯API·þÎñ
 set APP_PATH=%~dp0
 set PYTHON_PATH=%APP_PATH%.venv\Scripts\python.exe
-set SCRIPT_PATH=%APP_PATH%app\main.py
+set SCRIPT_PATH=%APP_PATH%\run.py
 
-:: æ£€æŸ¥PythonçŽ¯å¢ƒ
+:: ¼ì²éPython»·¾³
 if not exist "%PYTHON_PATH%" (
-    echo é”™è¯¯ï¼šæœªæ‰¾åˆ°Pythonè™šæ‹ŸçŽ¯å¢ƒ
-    echo è¯·å…ˆè¿è¡Œ setup.bat å®‰è£…ä¾èµ–
+    echo ´íÎó£ºÎ´ÕÒµ½PythonÐéÄâ»·¾³
+    echo ÇëÏÈÔËÐÐ setup.bat °²×°ÒÀÀµ
     pause
     exit /b 1
 )
 
-:: æ£€æŸ¥ä¸»ç¨‹åº
+:: ¼ì²éÖ÷³ÌÐò
 if not exist "%SCRIPT_PATH%" (
-    echo é”™è¯¯ï¼šæœªæ‰¾åˆ°ä¸»ç¨‹åºæ–‡ä»¶
+    echo ´íÎó£ºÎ´ÕÒµ½Ö÷³ÌÐòÎÄ¼þ
     pause
     exit /b 1
 )
 
-:: åœæ­¢å¹¶åˆ é™¤å·²å­˜åœ¨çš„æœåŠ¡
-echo æ£€æŸ¥çŽ°æœ‰æœåŠ¡...
+:: ¼ì²éÅäÖÃÎÄ¼þ
+if not exist "%APP_PATH%config.yaml" (
+    echo ¾¯¸æ£ºÎ´ÕÒµ½config.yamlÅäÖÃÎÄ¼þ£¬½«Ê¹ÓÃÄ¬ÈÏÅäÖÃ
+)
+
+:: Í£Ö¹²¢É¾³ýÒÑ´æÔÚµÄ·þÎñ
+echo ¼ì²éÏÖÓÐ·þÎñ...
 sc query "%SERVICE_NAME%" >nul 2>&1
 if %errorLevel% equ 0 (
-    echo å‘çŽ°çŽ°æœ‰æœåŠ¡ï¼Œæ­£åœ¨åœæ­¢...
+    echo ·¢ÏÖÏÖÓÐ·þÎñ£¬ÕýÔÚÍ£Ö¹...
     net stop "%SERVICE_NAME%" >nul 2>&1
-    echo æ­£åœ¨åˆ é™¤çŽ°æœ‰æœåŠ¡...
+    echo ÕýÔÚÉ¾³ýÏÖÓÐ·þÎñ...
     sc delete "%SERVICE_NAME%" >nul 2>&1
     timeout /t 2 >nul
 )
 
-:: åˆ›å»ºæœåŠ¡
-echo æ­£åœ¨åˆ›å»ºWindowsæœåŠ¡...
-sc create "%SERVICE_NAME%" binPath= "\"%PYTHON_PATH%\" -m uvicorn app.main:app --host 0.0.0.0 --port 8000" DisplayName= "%SERVICE_DISPLAY_NAME%" start= auto
+:: ´´½¨·þÎñ
+echo ÕýÔÚ´´½¨Windows·þÎñ...
+echo ·þÎñ½«´Óconfig.yaml¶ÁÈ¡ÅäÖÃ...
+sc create "%SERVICE_NAME%" binPath= "\"%PYTHON_PATH%\" \"%SCRIPT_PATH%\"" DisplayName= "%SERVICE_DISPLAY_NAME%" start= auto
 
-:: è®¾ç½®æœåŠ¡æè¿°
+:: ÉèÖÃ·þÎñÃèÊö
 sc description "%SERVICE_NAME%" "%SERVICE_DESCRIPTION%"
 
-:: å¯åŠ¨æœåŠ¡
-echo æ­£åœ¨å¯åŠ¨æœåŠ¡...
+:: Æô¶¯·þÎñ
+echo ÕýÔÚÆô¶¯·þÎñ...
 net start "%SERVICE_NAME%"
 
-:: æ£€æŸ¥æœåŠ¡çŠ¶æ€
+:: ¼ì²é·þÎñ×´Ì¬
 sc query "%SERVICE_NAME%" | find "RUNNING" >nul
 if %errorLevel% equ 0 (
     echo.
     echo ========================================
-    echo æœåŠ¡å®‰è£…æˆåŠŸï¼
+    echo ·þÎñ°²×°³É¹¦£¡
     echo ========================================
-    echo æœåŠ¡åç§°: %SERVICE_NAME%
-    echo æ˜¾ç¤ºåç§°: %SERVICE_DISPLAY_NAME%
-    echo APIåœ°å€: http://localhost:8000
-    echo æ–‡æ¡£åœ°å€: http://localhost:8000/docs
+    echo ·þÎñÃû³Æ: %SERVICE_NAME%
+    echo ÏÔÊ¾Ãû³Æ: %SERVICE_DISPLAY_NAME%
+    echo ÅäÖÃÎÄ¼þ: config.yaml
     echo.
-    echo æœåŠ¡ç®¡ç†å‘½ä»¤ï¼š
-    echo   å¯åŠ¨æœåŠ¡: net start %SERVICE_NAME%
-    echo   åœæ­¢æœåŠ¡: net stop %SERVICE_NAME%
-    echo   é‡å¯æœåŠ¡: net stop %SERVICE_NAME% && net start %SERVICE_NAME%
-    echo   åˆ é™¤æœåŠ¡: sc delete %SERVICE_NAME%
+    echo ·þÎñ¹ÜÀíÃüÁî£º
+    echo   Æô¶¯·þÎñ: net start %SERVICE_NAME%
+    echo   Í£Ö¹·þÎñ: net stop %SERVICE_NAME%
+    echo   ÖØÆô·þÎñ: net stop %SERVICE_NAME% && net start %SERVICE_NAME%
+    echo   É¾³ý·þÎñ: sc delete %SERVICE_NAME%
+    echo.
+    echo ×¢Òâ£º·þÎñ¶Ë¿ÚºÍÅäÖÃÇë²é¿´config.yamlÎÄ¼þ
     echo.
 ) else (
     echo.
     echo ========================================
-    echo æœåŠ¡å®‰è£…å¤±è´¥ï¼
+    echo ·þÎñ°²×°Ê§°Ü£¡
     echo ========================================
-    echo è¯·æ£€æŸ¥é”™è¯¯ä¿¡æ¯å¹¶é‡è¯•
+    echo Çë¼ì²é´íÎóÐÅÏ¢²¢ÖØÊÔ
     echo.
 )
 
