@@ -5,7 +5,11 @@ from app.models.response import APIResponse
 
 router = APIRouter()
 
-@router.post("/send", operation_id="[chat]发送消息")
+@router.post(
+    "/send", 
+    operation_id="[chat]发送消息",
+    summary="子窗口发送消息"
+)
 async def send_message(
     request: SendMessageRequest, 
     service: ChatService = Depends()
@@ -18,15 +22,25 @@ async def send_message(
         at=request.at
     )
 
-@router.post("/getallmessage", operation_id="[chat]获取所有消息")
+@router.post(
+    "/getallmessage", 
+    operation_id="[chat]获取所有消息",
+    summary="获取微信子窗口所有消息"
+)
 async def get_all_message(
     request: GetAllMessageRequest,
     service: ChatService = Depends()
 ):
     """获取微信子窗口所有消息"""
-    return service.get_all_message(who=request.who)
+    ser_get_all = service.get_all_message
+    print(ser_get_all)
+    return ser_get_all(who=request.who)
 
-@router.post("/getnewmessage", operation_id="[chat]获取新消息")
+@router.post(
+    "/getnewmessage", 
+    operation_id="[chat]获取新消息",
+    summary="获取微信子窗口新消息"
+)
 async def get_new_message(
     request: GetNewMessageRequest,
     service: ChatService = Depends()
@@ -34,7 +48,11 @@ async def get_new_message(
     """获取微信子窗口新消息"""
     return service.get_new_message(who=request.who)
 
-@router.post("/msg/quote", operation_id="[chat]发送引用消息")
+@router.post(
+    "/msg/quote", 
+    operation_id="[chat]发送引用消息",
+    summary="子窗口根据id发送引用消息"
+)
 async def send_quote_by_id(
     request: SendQuoteByIdRequest,
     service: ChatService = Depends()

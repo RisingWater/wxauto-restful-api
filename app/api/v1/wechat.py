@@ -125,7 +125,6 @@ async def send_url_card(
     response_model=APIResponse,
     summary="添加监听（需和配合/chat/getnewmessage来获取新消息）"
 )
-@conditional_route(has_listen_chat_feature)
 async def add_listen_chat(
     request: AddListenChatRequest,
     service: WeChatService = Depends()
@@ -142,7 +141,6 @@ async def add_listen_chat(
     response_model=APIResponse,
     summary="获取一个未读消息窗口的新消息"
 )
-@conditional_route(has_new_message_feature)
 async def get_next_new_message(
     request: GetNextNewMessageRequest,
     service: WeChatService = Depends()
@@ -212,7 +210,6 @@ async def accept_new_friend(
     )
 
 @router.post("/switch/chat", operation_id="[wx]切换到聊天页面", response_model=APIResponse)
-@conditional_route(has_page_switch_feature)
 async def switch_to_chat_page(
     request: SwitchToChatPageRequest,
     service: WeChatService = Depends()

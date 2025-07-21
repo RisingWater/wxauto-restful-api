@@ -181,17 +181,18 @@ class WeChatService:
             wxname: Optional[str] = None
         ) -> APIResponse:
         """获取所有消息"""
-        try:
-            wx = get_wechat(wxname)
-            if who:
-                if not wx.ChatWith(who):
-                    return APIResponse(success=False, message='找不到聊天窗口')
-            result = wx.ChatInfo()
-            msgs = wx.GetAllMessage()
-            result['msg'] = [msg.info for msg in msgs]
-            return APIResponse(success=True, message='', data=result)
-        except Exception as e:
-            return APIResponse(success=False, message=str(e))
+        # try:
+        #     print('走到wechat了')
+        #     wx = get_wechat(wxname)
+        #     if who:
+        #         if not wx.ChatWith(who):
+        #             return APIResponse(success=False, message='找不到聊天窗口')
+        #     result = wx.ChatInfo()
+        #     msgs = wx.GetAllMessage()
+        #     result['msg'] = [msg.info for msg in msgs]
+        #     return APIResponse(success=True, message='', data=result)
+        # except Exception as e:
+        #     return APIResponse(success=False, message=str(e))
 
     # wxautox特有功能
     def send_url_card(
@@ -217,9 +218,7 @@ class WeChatService:
             who: str,
             wxname: Optional[str] = None
         ) -> APIResponse:
-        """添加监听聊天（wxautox特有）"""
-        if not has_feature("add_listen_chat"):
-            return APIResponse(success=False, message="此功能需要wxautox版本支持")
+        """添加监听聊天"""
         
         try:
             wx = get_wechat(wxname)
@@ -237,9 +236,7 @@ class WeChatService:
             filter_mute: bool = False,
             wxname: Optional[str] = None
         ) -> APIResponse:
-        """获取下一个新消息（wxautox特有）"""
-        if not has_feature("get_next_new_message"):
-            return APIResponse(success=False, message="此功能需要wxautox版本支持")
+        """获取下一个新消息"""
         
         try:
             wx = get_wechat(wxname)

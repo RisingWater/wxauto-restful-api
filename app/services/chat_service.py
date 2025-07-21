@@ -48,6 +48,9 @@ class ChatService:
         if cls._instance is None:
             cls._instance = super(ChatService, cls).__new__(cls)
         return cls._instance
+    
+    def __repr__(self):
+        return f'<Chat Service object at {id(self)}>'
 
     def send_message(
         self,
@@ -117,39 +120,11 @@ class ChatService:
         else:
             return APIResponse(success=False, message='找不到消息')
 
-    def get_chat_info(self, wxname: Optional[str] = None) -> APIResponse:
+    def get_chat_info(self, who: str, wxname: Optional[str] = None) -> APIResponse:
         """获取聊天信息"""
         try:
-            wx = get_wechat(wxname)
-            result = wx.ChatInfo()
-            return APIResponse(success=True, message='', data=result)
-        except Exception as e:
-            return APIResponse(success=False, message=str(e))
-
-    def get_all_message(self, who: str, wxname: Optional[str] = None) -> APIResponse:
-        """获取所有消息"""
-        try:
-            wx = get_wechat(wxname)
-            if who:
-                if not wx.ChatWith(who):
-                    return APIResponse(success=False, message='找不到聊天窗口')
-            result = wx.ChatInfo()
-            msgs = wx.GetAllMessage()
-            result['msg'] = [msg.info for msg in msgs]
-            return APIResponse(success=True, message='', data=result)
-        except Exception as e:
-            return APIResponse(success=False, message=str(e))
-
-    def get_next_new_message(self, filter_mute: bool = False, wxname: Optional[str] = None) -> APIResponse:
-        """获取下一个新消息（wxautox特有）"""
-        if not has_feature("get_next_new_message"):
-            return APIResponse(success=False, message="此功能需要wxautox版本支持")
-        
-        try:
-            wx = get_wechat(wxname)
-            result = wx.GetNextNewMessage(filter_mute=filter_mute)
-            if result:
-                result['msg'] = [msg.info for msg in result['msg']]
+            subwin = get_wechat_subwin(wxname, who)
+            result = subwin.ChatInfo()
             return APIResponse(success=True, message='', data=result)
         except Exception as e:
             return APIResponse(success=False, message=str(e))

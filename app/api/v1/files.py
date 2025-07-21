@@ -8,7 +8,11 @@ from app.models.base import QueryParams
 router = APIRouter()
 file_service = FileService()
 
-@router.post("/upload", response_model=FileUploadResponse)
+@router.post(
+    "/upload", 
+    response_model=FileUploadResponse,
+    summary="上传文件"
+)
 async def upload_file(
     file: UploadFile = File(...),
     description: Optional[str] = Form(None),
@@ -28,7 +32,11 @@ async def upload_file(
     """
     return await file_service.upload_file(file, description, uploader)
 
-@router.get("/{file_id}", response_model=FileInfo)
+@router.get(
+    "/{file_id}", 
+    response_model=FileInfo,
+    summary="获取文件信息"
+)
 async def get_file(
     file_id: str,
     token: str = Depends(get_current_token)
@@ -47,7 +55,10 @@ async def get_file(
         raise HTTPException(status_code=404, detail="文件不存在")
     return file_info
 
-@router.delete("/{file_id}")
+@router.delete(
+    "/{file_id}",
+    summary="删除文件"
+)
 async def delete_file(
     file_id: str,
     token: str = Depends(get_current_token)
@@ -65,7 +76,11 @@ async def delete_file(
         return {"message": "文件删除成功"}
     raise HTTPException(status_code=404, detail="文件不存在")
 
-@router.get("/", response_model=List[FileInfo])
+@router.get(
+    "/", 
+    response_model=List[FileInfo],
+    summary="获取文件列表"
+)
 async def list_files(
     skip: int = 0,
     limit: int = 100,

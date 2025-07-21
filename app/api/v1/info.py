@@ -5,7 +5,12 @@ from app.utils.config import settings
 
 router = APIRouter()
 
-@router.get("/package", operation_id="获取包信息", response_model=APIResponse)
+@router.get(
+    "/package", 
+    operation_id="获取包信息", 
+    response_model=APIResponse,
+    summary="获取当前使用的包信息"
+)
 async def get_package_info():
     """获取当前使用的包信息"""
     package_info = {
@@ -21,7 +26,12 @@ async def get_package_info():
         data=package_info
     )
 
-@router.get("/features", operation_id="获取支持功能", response_model=APIResponse)
+@router.get(
+    "/features", 
+    operation_id="获取支持功能", 
+    response_model=APIResponse,
+    summary="获取当前版本支持的功能列表"
+)
 async def get_supported_features_info():
     """获取当前版本支持的功能列表"""
     features = get_supported_features()
@@ -36,7 +46,12 @@ async def get_supported_features_info():
         }
     )
 
-@router.get("/status", operation_id="获取服务状态", response_model=APIResponse)
+@router.get(
+    "/status", 
+    operation_id="获取服务状态", 
+    response_model=APIResponse,
+    summary="获取服务状态信息"
+)
 async def get_service_status():
     """获取服务状态信息"""
     status_info = {
