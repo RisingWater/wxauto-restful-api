@@ -6,6 +6,10 @@ dist/
 wheels/
 *.egg-info
 
+# uv
+.python-version
+uv.lock
+
 # Virtual environments
 .venv
 
@@ -14,5 +18,6 @@ data/
 uploads/
 wxauto_logs/
 wxautox/
+wxautox1/
 run.bat
 wxauto_api.log

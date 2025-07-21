@@ -1,34 +1,36 @@
-from wxautox import WeChat
-from typing import List
-from datetime import datetime
+from app.utils.wx_package_manager import get_wx_class, has_feature, is_wxautox
+from pythoncom import CoInitialize
+from typing import Optional, List
 from app.models.response import APIResponse
 
-def now_time(fmt='%Y%m%d%H%M%S'):
-    return datetime.now().strftime(fmt)
+# 动态导入wx包
+WeChat = get_wx_class("WeChat")
 
-def accept_new_friend(
-        wx: WeChat,
-        keywords: str,
-        remark: str = '',
-        tags: str = ''
-):
-    # 此处是因为dify当前有bug，无法设置array类型参数，所以str类型参数用\n分割
-    keywords = keywords.split('\n')  
-    tags = tags.split('\n')
-    result = []
-    try:
-        new_friends = wx.GetNewFriends()
-        for friend in new_friends:
-            for keyword in keywords:
-                if keyword in friend.msg:
-                    remark_name = f"{remark}_{now_time()}"
-                    friend.accept(remark_name, tags)
-                    info = friend.info
-                    info['remark'] = remark_name
-                    info['wxid'] = friend.get_account()
-                    result.append(info)
-        return APIResponse(success=True, message='success', data=result)
-    except Exception as e:
-        return APIResponse(success=False, message=str(e), data=None)
-    finally:
-        wx.SwitchToChat()
+# 初始化COM
+CoInitialize()
+
+def get_wechat(wxname: str) -> WeChat:
+    """获取微信实例"""
+    return WeChat(nickname=wxname)
+
+class AcceptNewFriendService:
+    """接受新朋友服务（wxautox特有）"""
+    
+    def __init__(self):
+        if not has_feature("accept_new_friend"):
+            raise RuntimeError("此功能需要wxautox版本支持")
+    
+    def accept_new_friend(
+            self,
+            new_friend_id: str,
+            remark: str = '',
+            tags: List[str] = [],
+            wxname: Optional[str] = None
+        ) -> APIResponse:
+        """接受新朋友"""
+        try:
+            wx = get_wechat(wxname)
+            result = wx.AcceptNewFriend(new_friend_id=new_friend_id, remark=remark, tags=tags)
+            return APIResponse(success=bool(result), message=result['message'], data=result['data'])
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))

@@ -96,6 +96,7 @@ class PerformanceConfig(BaseModel):
 
 class Settings(BaseModel):
     """总配置模型"""
+    package: Literal["wxauto", "wxautox"] = "wxauto"
     server: ServerConfig = Field(default_factory=ServerConfig)
     upload: UploadConfig = Field(default_factory=UploadConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)

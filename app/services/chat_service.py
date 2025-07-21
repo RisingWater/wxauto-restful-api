@@ -1,9 +1,45 @@
-from wxautox import WeChat, Chat, get_wx_clients
-from wxautox.param import WxResponse
+from app.utils.wx_package_manager import get_wx_class, get_wx_function, has_feature, is_wxautox
 from pythoncom import CoInitialize
 from typing import Optional, Union, List
 from app.models.response import APIResponse
-from .wechat_service import WxClient, get_wechat, get_wechat_subwin
+from .wechat_service import get_wechat_subwin
+
+# 动态导入wx包
+WeChat = get_wx_class("WeChat")
+Chat = get_wx_class("Chat")
+try:
+    get_wx_clients = get_wx_function("get_wx_clients")
+except:
+    def get_wx_clents():
+        wx = WeChat()
+        return {wx.nickname: wx}
+
+# 初始化COM
+CoInitialize()
+
+# 如果是wxautox版本，导入额外模块
+if is_wxautox():
+    try:
+        WxResponse = get_wx_class("WxResponse")
+    except Exception as e:
+        print(f"警告：无法导入WxResponse: {e}")
+
+# 获取微信客户端
+try:
+    WxClient = {i.nickname: i for i in get_wx_clients()}
+except Exception as e:
+    print(f"警告：无法获取微信客户端: {e}")
+    WxClient = {}
+
+def get_wechat(wxname: str) -> WeChat:
+    """获取微信实例"""
+    if (not wxname) and WxClient:
+        wx = list(WxClient.values())[0]
+    elif wxname in WxClient:
+        wx = WxClient[wxname]
+    else:
+        wx = WeChat(nickname=wxname)
+    return wx
 
 class ChatService:
     _instance = None
@@ -80,3 +116,40 @@ class ChatService:
             return APIResponse(success=bool(result), message=result['message'], data=result['data'])
         else:
             return APIResponse(success=False, message='找不到消息')
+
+    def get_chat_info(self, wxname: Optional[str] = None) -> APIResponse:
+        """获取聊天信息"""
+        try:
+            wx = get_wechat(wxname)
+            result = wx.ChatInfo()
+            return APIResponse(success=True, message='', data=result)
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
+
+    def get_all_message(self, who: str, wxname: Optional[str] = None) -> APIResponse:
+        """获取所有消息"""
+        try:
+            wx = get_wechat(wxname)
+            if who:
+                if not wx.ChatWith(who):
+                    return APIResponse(success=False, message='找不到聊天窗口')
+            result = wx.ChatInfo()
+            msgs = wx.GetAllMessage()
+            result['msg'] = [msg.info for msg in msgs]
+            return APIResponse(success=True, message='', data=result)
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
+
+    def get_next_new_message(self, filter_mute: bool = False, wxname: Optional[str] = None) -> APIResponse:
+        """获取下一个新消息（wxautox特有）"""
+        if not has_feature("get_next_new_message"):
+            return APIResponse(success=False, message="此功能需要wxautox版本支持")
+        
+        try:
+            wx = get_wechat(wxname)
+            result = wx.GetNextNewMessage(filter_mute=filter_mute)
+            if result:
+                result['msg'] = [msg.info for msg in result['msg']]
+            return APIResponse(success=True, message='', data=result)
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
