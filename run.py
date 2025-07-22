@@ -6,9 +6,16 @@ wxauto API 启动脚本
 
 import sys
 import uvicorn
+import webbrowser
 from pathlib import Path
 from app.utils.config import settings
 from app.utils.logger import setup_logger
+
+# 延迟打开浏览器
+def open_browser(url):
+    import time
+    time.sleep(2)
+    webbrowser.open(url)
 
 def main() -> None:
     """主函数，启动FastAPI应用
@@ -22,13 +29,16 @@ def main() -> None:
     host = settings.server.host
     port = settings.server.port
     reload = settings.server.reload
-    
+    url = f"http://127.0.0.1:{port}{settings.api.docs_url}"
+
     logger.info(f"启动wxauto API服务")
-    logger.info(f"服务器地址: {host}:{port}")
+    logger.info(f"服务器地址: 127.0.0.1:{port}")
     logger.info(f"热重载: {'启用' if reload else '禁用'}")
-    logger.info(f"API文档: http://{host}:{port}{settings.api.docs_url}")
+    logger.info(f"API文档: {url}")
     
     try:
+        import threading
+        threading.Thread(target=open_browser, args=(url,), daemon=True).start()
         # 启动uvicorn服务器
         uvicorn.run(
             "app.main:app",

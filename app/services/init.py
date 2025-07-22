@@ -30,7 +30,10 @@ if is_wxautox():
 
 # 获取微信客户端
 try:
-    WxClient = {i.nickname: i for i in get_wx_clients()}
+    WxClient = {}
+    for client in get_wx_clients():
+        WxClient[client.nickname] = client
+        client.StopListening()
 except Exception as e:
     print(f"警告：无法获取微信客户端: {e}")
     WxClient = {}

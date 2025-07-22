@@ -2,35 +2,56 @@ from app.utils.wx_package_manager import get_wx_class, has_feature, is_wxautox
 from pythoncom import CoInitialize
 from typing import Optional, List
 from app.models.response import APIResponse
-
-# 动态导入wx包
-WeChat = get_wx_class("WeChat")
+import time
 
 # 初始化COM
 CoInitialize()
 
-def get_wechat(wxname: str) -> WeChat:
-    """获取微信实例"""
-    return WeChat(nickname=wxname)
+def accept_single_friend(new, keywords, remark, tags):
 
-class AcceptNewFriendService:
-    """接受新朋友服务（wxautox特有）"""
-    
-    def __init__(self):
-        if not has_feature("accept_new_friend"):
-            raise RuntimeError("此功能需要wxautox版本支持")
-    
-    def accept_new_friend(
-            self,
-            new_friend_id: str,
-            remark: str = '',
-            tags: List[str] = [],
-            wxname: Optional[str] = None
-        ) -> APIResponse:
-        """接受新朋友"""
+    if isinstance(keywords, str):
+        keywords = [keywords]
+    if isinstance(tags, str):
+        tags = [tags]
+
+    newmsg = new.msg.lower()
+    newname = new.name
+    result = {
+        'new_message': newmsg,
+        'new_nickname': newname,
+        'new_account': '',
+        'accept': False 
+    }
+    if any(keyword in newmsg for keyword in keywords):
+        new_remark = f"{remark}_{int(time.strftime('%y%m%d%H%M%S'))}" 
+        new.accept(remark=new_remark, tags=tags)
+        account = new.get_account()
+        result['accept'] = True
+        result['new_account'] = account
+    return result
+
+
+def accept_new_friend(
+        wx,
+        keywords,
+        remark: str = '',
+        tags: List[str] = []
+    ) -> APIResponse:
+    """接受新朋友"""
+    if not has_feature("accept_new_friend"):
+        return APIResponse(success=False, message="此功能需要wxautox版本支持")
+    try:
+        result = []
+        new_friends = wx.GetNewFriends()
+        for new in new_friends:
+            result.append(accept_single_friend(new, keywords, remark, tags))
+        return APIResponse(success=bool(result), message='操作完成', data=result)
+    except Exception as e:
+        return APIResponse(success=False, message=str(e))
+    finally:
         try:
-            wx = get_wechat(wxname)
-            result = wx.AcceptNewFriend(new_friend_id=new_friend_id, remark=remark, tags=tags)
-            return APIResponse(success=bool(result), message=result['message'], data=result['data'])
-        except Exception as e:
-            return APIResponse(success=False, message=str(e))
+            wx.SwitchToChat()
+        except:
+            import traceback
+            traceback.print_exc()
+            pass
