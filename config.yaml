@@ -42,9 +42,9 @@ wechat:
   app_path: "C:/Program Files/WeChat/WeChat.exe"  # 微信安装路径
   language: "cn"                                  # 语言设置 (cn/cn_t/en)
   enable_file_logger: true                        # 是否启用文件日志
-  message_hash: false                             # 是否启用消息哈希值
+  message_hash: true                             # 是否启用消息哈希值
   default_message_xbias: 51                       # 头像到消息X偏移量
-  force_message_xbias: false                      # 是否强制重新获取X偏移量
+  force_message_xbias: true                      # 是否强制重新获取X偏移量
   listen_interval: 1                              # 监听消息时间间隔(秒)
   listener_executor_workers: 4                    # 监听执行器线程池大小
   search_chat_timeout: 5                          # 搜索聊天对象超时时间(秒)

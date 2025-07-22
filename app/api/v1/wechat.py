@@ -98,6 +98,7 @@ async def get_all_message(
     service: WeChatService = Depends()
 ):
     """获取当前窗口加载的消息"""
+    print('xxxxxxxxxxxxxxxxxxxx')
     return service.get_all_message(who=request.who, wxname=request.wxname)
 
 @router.post(

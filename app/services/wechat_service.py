@@ -29,8 +29,8 @@ CoInitialize()
 if is_wxautox():
     try:
         WxParam = get_wx_class("WxParam")
-        WxResponse = get_wx_class("WxResponse")
-        wxlog = get_wx_class("wxlog")
+        WxResponse = wx_manager.package.param.WxResponse
+        wxlog = wx_manager.package.logger.wxlog
         
         # 设置wxautox特有配置
         wxlog.set_debug(True)
@@ -181,18 +181,17 @@ class WeChatService:
             wxname: Optional[str] = None
         ) -> APIResponse:
         """获取所有消息"""
-        # try:
-        #     print('走到wechat了')
-        #     wx = get_wechat(wxname)
-        #     if who:
-        #         if not wx.ChatWith(who):
-        #             return APIResponse(success=False, message='找不到聊天窗口')
-        #     result = wx.ChatInfo()
-        #     msgs = wx.GetAllMessage()
-        #     result['msg'] = [msg.info for msg in msgs]
-        #     return APIResponse(success=True, message='', data=result)
-        # except Exception as e:
-        #     return APIResponse(success=False, message=str(e))
+        try:
+            wx = get_wechat(wxname)
+            if who:
+                if not wx.ChatWith(who):
+                    return APIResponse(success=False, message='找不到聊天窗口')
+            result = wx.ChatInfo()
+            msgs = wx.GetAllMessage()
+            result['msg'] = [msg.info for msg in msgs]
+            return APIResponse(success=True, message='', data=result)
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
 
     # wxautox特有功能
     def send_url_card(
