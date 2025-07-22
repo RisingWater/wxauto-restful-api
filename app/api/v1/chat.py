@@ -65,3 +65,14 @@ async def send_quote_by_id(
         wxname=request.wxname
     )
 
+@router.post(
+    "/close", 
+    operation_id="[chat]关闭子窗口",
+    summary="关闭子窗口"
+)
+async def close_sub_window(
+    request: CloseSubWindowsRequest,
+    service: ChatService = Depends()
+):
+    """关闭子窗口"""
+    return service.close_sub_window(who=request.who, wxname=request.wxname)

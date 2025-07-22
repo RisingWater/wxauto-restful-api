@@ -26,3 +26,5 @@ class SendQuoteByIdRequest(BaseRequest):
     msg_id: str
     content: str
 
+class CloseSubWindowsRequest(BaseRequest):
+    ...

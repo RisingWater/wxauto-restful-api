@@ -30,8 +30,7 @@ class WxPackageManager:
                     self._is_wxautox = True
                     logger.info("已加载 wxautox 包")
                 except:
-                    import traceback
-                    traceback.print_exc()
+                    logger.warning("wxautox鉴权失败，尝试加载wxauto包")
                     self._package = importlib.import_module("wxauto")
                     self._is_wxautox = False
                     logger.info("已加载 wxauto 包")

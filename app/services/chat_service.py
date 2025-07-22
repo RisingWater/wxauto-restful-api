@@ -1,43 +1,9 @@
-from app.utils.wx_package_manager import (
-    get_wx_class, 
-    get_wx_function, 
-    has_feature, 
-    is_wxautox,
-    wx_manager
-)
-from pythoncom import CoInitialize
-from typing import Optional, Union, List
+from typing import Optional
 from app.models.response import APIResponse
 from .wechat_service import get_wechat_subwin
+from .init import WeChat, WxClient
 
-# 动态导入wx包
-WeChat = get_wx_class("WeChat")
-Chat = get_wx_class("Chat")
-try:
-    get_wx_clients = get_wx_function("get_wx_clients")
-except:
-    def get_wx_clents():
-        wx = WeChat()
-        return {wx.nickname: wx}
-
-# 初始化COM
-CoInitialize()
-
-# 如果是wxautox版本，导入额外模块
-if is_wxautox():
-    try:
-        WxResponse = wx_manager.package.param.WxResponse
-    except Exception as e:
-        print(f"警告：无法导入WxResponse: {e}")
-
-# 获取微信客户端
-try:
-    WxClient = {i.nickname: i for i in get_wx_clients()}
-except Exception as e:
-    print(f"警告：无法获取微信客户端: {e}")
-    WxClient = {}
-
-def get_wechat(wxname: str) -> WeChat:
+def get_wechat(wxname: str) -> 'WeChat':
     """获取微信实例"""
     if (not wxname) and WxClient:
         wx = list(WxClient.values())[0]
@@ -132,5 +98,15 @@ class ChatService:
             subwin = get_wechat_subwin(wxname, who)
             result = subwin.ChatInfo()
             return APIResponse(success=True, message='', data=result)
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
+        
+    def close_sub_window(self, who: str, wxname: Optional[str] = None) -> APIResponse:
+        try:
+            subwin = get_wechat_subwin(wxname, who)
+            if result := subwin.Close():
+                return APIResponse(success=True, message='')
+            else:
+                return APIResponse(success=True, message=result['message'])
         except Exception as e:
             return APIResponse(success=False, message=str(e))

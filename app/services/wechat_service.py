@@ -1,50 +1,9 @@
-from app.utils.wx_package_manager import (
-    wx_manager,
-    get_wx_class, 
-    get_wx_function, 
-    has_feature, 
-    is_wxautox
-)
-from pythoncom import CoInitialize
+from app.utils.wx_package_manager import has_feature
 from typing import Optional, Union, List
 from app.models.response import APIResponse
 from app.services.file_service import FileService
+from .init import WeChat, WxClient, Chat, HumanMessage
 import os
-
-# 动态导入wx包
-WeChat = get_wx_class("WeChat")
-Chat = get_wx_class("Chat")
-HumanMessage = wx_manager.package.msgs.base.HumanMessage
-try:
-    get_wx_clients = get_wx_function("get_wx_clients")
-except:
-    def get_wx_clents():
-        wx = WeChat()
-        return {wx.nickname: wx}
-
-# 初始化COM
-CoInitialize()
-
-# 如果是wxautox版本，设置额外配置
-if is_wxautox():
-    try:
-        WxParam = get_wx_class("WxParam")
-        WxResponse = wx_manager.package.param.WxResponse
-        wxlog = wx_manager.package.logger.wxlog
-        
-        # 设置wxautox特有配置
-        wxlog.set_debug(True)
-        WxParam.MESSAGE_HASH = True
-        WxParam.ENABLE_FILE_LOGGER = False
-    except Exception as e:
-        print(f"警告：无法设置wxautox特有配置: {e}")
-
-# 获取微信客户端
-try:
-    WxClient = {i.nickname: i for i in get_wx_clients()}
-except Exception as e:
-    print(f"警告：无法获取微信客户端: {e}")
-    WxClient = {}
 
 def get_wechat(wxname: str) -> WeChat:
     """获取微信实例
@@ -223,7 +182,8 @@ class WeChatService:
             wx = get_wechat(wxname)
             if who in [i.who for i in wx.GetAllSubWindow()]:
                 return APIResponse(success=False, message='该聊天已监听中')
-            subwin = wx._api.open_separate_window(who)
+            wxapi = wx._api if hasattr(wx, '_api') else wx.core
+            subwin = wxapi.open_separate_window(who)
             if subwin is None:
                 return APIResponse(success=False, message='找不到聊天窗口')
             return APIResponse(success=True, message=f'{who} 聊天窗口已添加监听')
