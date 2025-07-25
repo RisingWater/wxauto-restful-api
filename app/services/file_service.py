@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional, Tuple, List
 from fastapi import UploadFile, HTTPException
 from app.models.file import FileInfo, FileUploadResponse
+from app.models.base import QueryParams
 from app.database.factory import DatabaseFactory
 from app.utils.config import settings
 
@@ -200,11 +201,12 @@ class FileService:
         Returns:
             Tuple[int, List[FileInfo]]: 总数和文件列表
         """
-        result = self.db.query("files", {
-            "skip": skip,
-            "limit": limit,
-            "filters": {"is_deleted": 0},
-            "sort_by": "upload_time",
-            "sort_order": "DESC"
-        })
+        params = QueryParams(
+            skip = skip,
+            limit = limit,
+            filters = {"is_deleted": 0},
+            sort_by = "upload_time",
+            sort_order = "DESC"
+        )
+        result = self.db.query("files", params)
         return result.total, [FileInfo(**item) for item in result.items] 

@@ -22,10 +22,10 @@ class QueryParams(BaseModel):
     sort_order: Optional[str] = "asc"
     filters: Optional[Dict[str, Any]] = None
 
-class QueryResult(Generic[T]):
+class QueryResult(BaseModel):
     """查询结果模型"""
     total: int
-    items: List[T]
+    items: List[Any]
     page: int
     size: int
     has_more: bool
@@ -103,7 +103,7 @@ class BaseDatabase:
         """
         raise NotImplementedError
     
-    def query(self, params: QueryParams) -> QueryResult[BaseDBModel]:
+    def query(self, params: QueryParams) -> QueryResult:
         """查询数据
         
         Args:

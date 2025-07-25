@@ -139,40 +139,51 @@ class SQLiteDatabase(BaseDatabase):
             raise Exception(f"获取数据失败: {str(e)}")
     
     def query(self, table_name: str, params: QueryParams) -> QueryResult:
-        """查询数据
-        
+        """查询数据，并返回符合 Pydantic 模型的结构化数据
+
         Args:
             table_name: 表名
             params: 查询参数
-            
+            model: 单条数据对应的Pydantic模型类
+
         Returns:
-            QueryResult: 查询结果
+            QueryResult[T]: 查询结果
         """
         try:
             conditions = []
             values = []
-            
+
             if params.filters:
                 for field, value in params.filters.items():
                     conditions.append(f"{field}=?")
                     values.append(value)
-                    
+
             where_clause = f" WHERE {' AND '.join(conditions)}" if conditions else ""
             order_clause = f" ORDER BY {params.sort_by} {params.sort_order}" if params.sort_by else ""
             limit_clause = f" LIMIT {params.limit} OFFSET {params.skip}"
-            
+
             # 获取总数
             count_sql = f"SELECT COUNT(*) FROM {table_name}{where_clause}"
             total = self.conn.execute(count_sql, values).fetchone()[0]
-            
+
             # 获取数据
             sql = f"SELECT * FROM {table_name}{where_clause}{order_clause}{limit_clause}"
             cursor = self.conn.execute(sql, values)
             rows = cursor.fetchall()
-            
+
+            # 将 sqlite3.Row 转换为 Pydantic 模型实例
+            items = [dict(row) for row in rows]
+
+            page = params.skip // params.limit + 1 if params.limit else 1
+            has_more = params.skip + params.limit < total
+
             return QueryResult(
                 total=total,
-                items=[dict(row) for row in rows]
+                items=items,
+                page=page,
+                size=len(items),
+                has_more=has_more
             )
+
         except sqlite3.Error as e:
-            raise Exception(f"查询数据失败: {str(e)}") 
+            raise Exception(f"查询数据失败: {str(e)}")

@@ -104,9 +104,10 @@ class ChatService:
     def close_sub_window(self, who: str, wxname: Optional[str] = None) -> APIResponse:
         try:
             subwin = get_wechat_subwin(wxname, who)
-            if result := subwin.Close():
-                return APIResponse(success=True, message='')
-            else:
-                return APIResponse(success=True, message=result['message'])
+            if subwin is None:
+                return APIResponse(success=False, message=f'窗口不存在：{who}')
+            subwin.Close()
+            return APIResponse(success=True, message='')
+
         except Exception as e:
             return APIResponse(success=False, message=str(e))
