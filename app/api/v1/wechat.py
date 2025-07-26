@@ -227,7 +227,7 @@ async def switch_to_chat_page(
     "/isonline", 
     operation_id="[wx]是否在线（掉线）", 
     response_model=APIResponse,
-    summary="微信是否在线（掉线）"
+    summary="✨微信是否在线（掉线）"
 )
 async def is_online(
     request: IsOnlineRequest,
