@@ -270,7 +270,7 @@ class WeChatService:
         
         try:
             wx = get_wechat(wxname)
-            result = wx.SwitchToChatPage()
+            result = wx.SwitchToChat()
             return APIResponse(success=bool(result), message=result['message'], data=result['data'])
         except Exception as e:
             return APIResponse(success=False, message=str(e))
@@ -287,5 +287,22 @@ class WeChatService:
             wx = get_wechat(wxname)
             result = wx.SwitchToContactPage()
             return APIResponse(success=bool(result), message=result['message'], data=result['data'])
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
+        
+    def is_online(
+            self,
+            wxname: Optional[str] = None
+        ) -> APIResponse:
+        if not has_feature("is_online"):
+            return APIResponse(success=False, message="此功能需要wxautox版本支持")
+        
+        try:
+            wx = get_wechat(wxname)
+            result = wx.IsOnline()
+            if result:
+                return APIResponse(success=True, message='在线', data={'status': 'online', 'online': True})
+            else:
+                return APIResponse(success=True, message='离线', data={'status': 'offline', 'online': False})
         except Exception as e:
             return APIResponse(success=False, message=str(e))

@@ -68,3 +68,6 @@ class SwitchToChatPageRequest(BaseRequest):
 # 切换到联系人页面请求
 class SwitchToContactPageRequest(BaseRequest):
     pass
+
+class IsOnlineRequest(BaseRequest):
+    pass

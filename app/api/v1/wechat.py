@@ -210,13 +210,31 @@ async def accept_new_friend(
         wxname=request.wxname
     )
 
-@router.post("/switch/chat", operation_id="[wx]切换到聊天页面", response_model=APIResponse)
+@router.post(
+    "/switch/chat", 
+    operation_id="[wx]切换到聊天页面", 
+    response_model=APIResponse,
+    summary="主窗口切换到聊天页面"
+)
 async def switch_to_chat_page(
     request: SwitchToChatPageRequest,
     service: WeChatService = Depends()
 ):
     """切换到聊天页面（wxautox特有）"""
     return service.switch_to_chat_page(wxname=request.wxname)
+
+@router.post(
+    "/isonline", 
+    operation_id="[wx]是否在线（掉线）", 
+    response_model=APIResponse,
+    summary="微信是否在线（掉线）"
+)
+async def is_online(
+    request: IsOnlineRequest,
+    service: WeChatService = Depends()
+):
+    """微信是否在线（wxautox特有）"""
+    return service.is_online(wxname=request.wxname)
 
 # @router.post("/switch/contact", operation_id="[wx]切换到联系人页面", response_model=APIResponse)
 # @conditional_route(has_page_switch_feature)

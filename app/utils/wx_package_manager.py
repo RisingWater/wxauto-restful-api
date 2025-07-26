@@ -99,6 +99,7 @@ class WxPackageManager:
             "accept_new_friend",
             "switch_to_chat_page",
             "switch_to_contact_page",
+            "is_online",
             "WxParam",
             "WxResponse",
             "wxlog"

@@ -1,6 +1,6 @@
 # wxauto API 配置文件
 
-package: "wxauto"
+package: "wxautox"
 
 # 服务器配置
 server:
