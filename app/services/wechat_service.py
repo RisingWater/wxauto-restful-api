@@ -190,57 +190,76 @@ class WeChatService:
         except Exception as e:
             return APIResponse(success=False, message=str(e))
         
-    def get_next_new_message(
+   def get_next_new_message(
         self,
         filter_mute: bool = False,
         wxname: Optional[str] = None
     ) -> APIResponse:
-        """获取下一个新消息，并自动下载媒体文件"""
+    """获取下一个新消息，并自动下载媒体文件和转换语音"""
     
-        try:
-            wx = get_wechat(wxname)
-            result = wx.GetNextNewMessage(filter_mute=filter_mute)
+    try:
+        wx = get_wechat(wxname)
+        result = wx.GetNextNewMessage(filter_mute=filter_mute)
+        
+        if result and 'msg' in result:
+            processed_messages = []
             
-            if result and 'msg' in result:
-                processed_messages = []
+            for msg in result['msg']:
+                msg_info = msg.info
+                msg_class_name = msg.__class__.__name__
                 
-                for msg in result['msg']:
-                    msg_info = msg.info
-                    
-                    # 基于类名判断是否是媒体消息
-                    msg_class_name = msg.__class__.__name__
-                    is_media_message = any(media_type in msg_class_name 
-                                        for media_type in ['Image', 'Video', 'File', 'Voice'])
-                    
-                    if is_media_message and hasattr(msg, 'download'):
-                        try:
-                            # 设置下载路径到 H:\ 盘
-                            download_dir = "H:\\wechat_downloads"
-                            os.makedirs(download_dir, exist_ok=True)
-                            
-                            # 下载文件
-                            file_path = msg.download(dir_path=download_dir, timeout=30)
-                            
-                            # 更新消息信息
-                            msg_info.update({
-                                "file_name": file_path.name,
-                                "download_success": True
-                            })
-                            
-                        except Exception as download_error:
-                            msg_info.update({
-                                "download_error": str(download_error),
-                                "download_success": False
-                            })
-                    
-                    processed_messages.append(msg_info)
+                # 处理图片、视频、文件消息（有 download 方法）
+                is_media_message = any(media_type in msg_class_name 
+                                    for media_type in ['Image', 'Video', 'File'])
                 
-                result['msg'] = processed_messages
+                if is_media_message and hasattr(msg, 'download'):
+                    try:
+                        # 设置下载路径到 H:\ 盘
+                        download_dir = "H:\\wechat_downloads"
+                        os.makedirs(download_dir, exist_ok=True)
+                        
+                        # 下载文件
+                        file_path = msg.download(dir_path=download_dir, timeout=30)
+                        
+                        # 更新消息信息
+                        msg_info.update({
+                            "file_name": file_path.name,
+                            "download_success": True
+                        })
+                        
+                    except Exception as download_error:
+                        msg_info.update({
+                            "download_error": str(download_error),
+                            "download_success": False
+                        })
                 
-            return APIResponse(success=True, message='', data=result)
+                # 单独处理语音消息（有 to_text 方法）
+                elif 'Voice' in msg_class_name and hasattr(msg, 'to_text'):
+                    try:
+                        # 转换语音为文本
+                        text_content = msg.to_text()
+                        
+                        # 添加语音转文本结果
+                        msg_info.update({
+                            "voice_to_text": text_content,
+                            "voice_convert_success": True
+                        })
+                        
+                    except Exception as voice_error:
+                        msg_info.update({
+                            "voice_to_text": "",
+                            "voice_convert_error": str(voice_error),
+                            "voice_convert_success": False
+                        })
+                
+                processed_messages.append(msg_info)
             
-        except Exception as e:
-            return APIResponse(success=False, message=str(e))
+            result['msg'] = processed_messages
+            
+        return APIResponse(success=True, message='', data=result)
+        
+    except Exception as e:
+        return APIResponse(success=False, message=str(e))
 
     def send_quote_by_id(
             self,
