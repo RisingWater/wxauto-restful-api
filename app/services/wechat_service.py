@@ -191,18 +191,54 @@ class WeChatService:
             return APIResponse(success=False, message=str(e))
         
     def get_next_new_message(
-            self,
-            filter_mute: bool = False,
-            wxname: Optional[str] = None
-        ) -> APIResponse:
-        """获取下一个新消息"""
-        
+        self,
+        filter_mute: bool = False,
+        wxname: Optional[str] = None
+    ) -> APIResponse:
+        """获取下一个新消息，并自动下载媒体文件"""
+    
         try:
             wx = get_wechat(wxname)
             result = wx.GetNextNewMessage(filter_mute=filter_mute)
-            if result:
-                result['msg'] = [msg.info for msg in result['msg']]
+            
+            if result and 'msg' in result:
+                processed_messages = []
+                
+                for msg in result['msg']:
+                    msg_info = msg.info
+                    
+                    # 基于类名判断是否是媒体消息
+                    msg_class_name = msg.__class__.__name__
+                    is_media_message = any(media_type in msg_class_name 
+                                        for media_type in ['Image', 'Video', 'File', 'Voice'])
+                    
+                    if is_media_message and hasattr(msg, 'download'):
+                        try:
+                            # 设置下载路径到 H:\ 盘
+                            download_dir = "H:\\wechat_downloads"
+                            os.makedirs(download_dir, exist_ok=True)
+                            
+                            # 下载文件
+                            file_path = msg.download(dir_path=download_dir, timeout=30)
+                            
+                            # 更新消息信息
+                            msg_info.update({
+                                "file_name": file_path.name,
+                                "download_success": True
+                            })
+                            
+                        except Exception as download_error:
+                            msg_info.update({
+                                "download_error": str(download_error),
+                                "download_success": False
+                            })
+                    
+                    processed_messages.append(msg_info)
+                
+                result['msg'] = processed_messages
+                
             return APIResponse(success=True, message='', data=result)
+            
         except Exception as e:
             return APIResponse(success=False, message=str(e))
 
