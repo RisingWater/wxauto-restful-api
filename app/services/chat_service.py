@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from app.models.response import APIResponse
 from .wechat_service import get_wechat_subwin
 from .init import WeChat, WxClient
@@ -29,7 +29,7 @@ class ChatService:
         msg: str,
         who: str,
         clear: bool = True,
-        at: Optional[str | list] = None,
+        at: Optional[Union[str, list]] = None,
         wxname: Optional[str] = None
     ) -> APIResponse:
         subwin = get_wechat_subwin(wxname, who)

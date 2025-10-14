@@ -1,6 +1,7 @@
 from pydantic import BaseModel
+from typing import Union, Optional
 
 class APIResponse(BaseModel):
     success: bool
     message: str = ""
-    data: dict | list | None = None
+    data: Optional[Union[dict, list]] = None

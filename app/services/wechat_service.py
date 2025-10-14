@@ -52,7 +52,7 @@ class WeChatService:
             msg: str,
             who: Optional[str] = None, 
             clear: bool = True, 
-            at: Optional[str | list] = None, 
+            at: Optional[Union[str, list]] = None, 
             exact: bool = False, 
             wxname: Optional[str] = None
         ) -> APIResponse:
