@@ -208,9 +208,8 @@ class WeChatService:
                     msg_info = msg.info
                     msg_class_name = msg.__class__.__name__
                     
-                    # 处理图片、视频、文件消息（有 download 方法）
-                    is_media_message = any(media_type in msg_class_name 
-                                        for media_type in ['Image', 'Video', 'File'])
+                    # 处理图片、视频（有 download 方法两个参数）
+                    is_media_message = any(media_type in msg_class_name for media_type in ['Image', 'Video'])
                     
                     if is_media_message and hasattr(msg, 'download'):
                         try:
@@ -232,7 +231,27 @@ class WeChatService:
                                 "download_error": str(download_error),
                                 "download_success": False
                             })
-                    
+                    # 文件下载处理方法（有 download 方法三个参数）
+                    elif 'File' in msg_class_name and hasattr(msg, 'download'):
+                        try:
+                            # 设置下载路径到 H:\ 盘
+                            download_dir = "H:\\wechat_downloads"
+                            os.makedirs(download_dir, exist_ok=True)
+
+                            # 下载文件
+                            file_path = msg.download(dir_path=download_dir, force_click=False, timeout=30)
+                            
+                            # 更新消息信息
+                            msg_info.update({
+                                "file_name": file_path.name,
+                                "download_success": True
+                            })
+
+                        except Exception as download_error:
+                            msg_info.update({
+                                "download_error": str(download_error),
+                                "download_success": False
+                            })
                     # 单独处理语音消息（有 to_text 方法）
                     elif 'Voice' in msg_class_name and hasattr(msg, 'to_text'):
                         try:
