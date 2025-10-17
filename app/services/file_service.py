@@ -63,14 +63,14 @@ class FileService:
         Returns:
             str: 文件存储路径
         """
-        # 使用哈希值的前两位作为子目录
-        sub_dir = os.path.join(self.base_dir, file_hash[:2])
+        # 使用哈希值作为子目录
+        sub_dir = os.path.join(self.base_dir, file_hash)
         if not os.path.exists(sub_dir):
             os.makedirs(sub_dir)
             
         # 获取文件扩展名
         _, ext = os.path.splitext(filename)
-        return os.path.join(sub_dir, f"{file_hash}{ext}")
+        return os.path.join(sub_dir, filename)
         
     def _validate_file(self, file: UploadFile) -> None:
         """验证文件
@@ -138,11 +138,13 @@ class FileService:
             while chunk := file.file.read(self.chunk_size):
                 f.write(chunk)
                 
+        file_type = file.content_type or "application/octet-stream"
+
         # 记录文件信息
         file_info = {
             "id": file_hash,
             "filename": file.filename,
-            "file_type": file.content_type,
+            "file_type": file_type,
             "file_size": os.path.getsize(file_path),
             "file_hash": file_hash,
             "file_path": file_path,
