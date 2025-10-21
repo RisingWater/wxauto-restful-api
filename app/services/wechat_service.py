@@ -270,6 +270,20 @@ class WeChatService:
                                 "voice_convert_error": str(voice_error),
                                 "voice_convert_success": False
                             })
+                    elif 'Link' in msg_class_name and hasattr(msg, 'get_url'):
+                        try:
+                            url_content = msg.get_url()
+                            msg_info.update({
+                                "url_content": url_content,
+                                "url_get_success": True
+                            })
+
+                        except Exception as url_error:
+                            msg_info.update({
+                                "url_content": "",
+                                "url_get_error": str(url_error),
+                                "url_get_success": False
+                            })
                     
                     processed_messages.append(msg_info)
                 
