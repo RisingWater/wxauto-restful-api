@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi.responses import FileResponse
 from app.models.file import FileInfo, FileUploadResponse
 from app.services.file_service import FileService
 from app.utils.auth import get_current_token
@@ -98,3 +99,34 @@ async def list_files(
     """
     total, files = file_service.list_files(skip, limit)
     return files 
+
+@router.get(
+    "/{file_id}/download",
+    summary="下载文件"
+)
+async def download_file(
+    file_id: str,
+    token: str = Depends(get_current_token)
+):
+    """下载文件
+    
+    Args:
+        file_id: 文件ID
+        token: 认证令牌
+        
+    Returns:
+        FileResponse: 文件响应
+    """
+    try:
+        file_path, filename, content_type = await file_service.download_file(file_id)
+        
+        return FileResponse(
+            path=file_path,
+            filename=filename,
+            media_type=content_type,
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"下载文件失败: {str(e)}")

@@ -212,3 +212,37 @@ class FileService:
         )
         result = self.db.query("files", params)
         return result.total, [FileInfo(**item) for item in result.items] 
+    
+    async def download_file(self, file_id: str) -> Tuple[str, str, str]:
+        """下载文件
+        
+        Args:
+            file_id: 文件ID
+            
+        Returns:
+            Tuple[str, str, str]: (文件路径, 文件名, 内容类型)
+            
+        Raises:
+            HTTPException: 文件不存在或已被删除
+        """
+        # 获取文件信息
+        file_info = self.db.get_by_id("files", file_id)
+        
+        if not file_info or file_info["is_deleted"]:
+            raise HTTPException(status_code=404, detail="文件不存在或已被删除")
+        
+        # 检查文件是否实际存在
+        file_path = file_info["file_path"]
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="文件不存在")
+        
+        # 更新下载次数
+        self.db.update("files", file_id, {
+            "download_count": file_info["download_count"] + 1
+        })
+        
+        return (
+            file_path, 
+            file_info["filename"], 
+            file_info["file_type"]
+        )
