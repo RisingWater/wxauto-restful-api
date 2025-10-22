@@ -71,3 +71,9 @@ class SwitchToContactPageRequest(BaseRequest):
 
 class IsOnlineRequest(BaseRequest):
     pass
+
+class LoginRequest(BaseRequest):
+    pass
+
+class QRCodeRequest(BaseRequest):
+    pass

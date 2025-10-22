@@ -7,6 +7,7 @@ from app.models.file import FileInfo, FileUploadResponse
 from app.models.base import QueryParams
 from app.database.factory import DatabaseFactory
 from app.utils.config import settings
+import shutil
 
 class FileService:
     """文件服务"""
@@ -52,6 +53,21 @@ class FileService:
             sha256.update(chunk)
         file.file.seek(0)  # 重置文件指针
         return sha256.hexdigest()
+
+    def _calculate_hash_by_path(self, file_path: str) -> str:
+        """计算本地文件的哈希值
+        
+        Args:
+            file_path: 文件路径
+            
+        Returns:
+            str: 文件的SHA256哈希值
+        """
+        sha256_hash = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            while chunk := f.read(self.chunk_size):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
         
     def _get_file_path(self, file_hash: str, filename: str) -> str:
         """获取文件存储路径
@@ -92,6 +108,39 @@ class FileService:
         # 检查文件类型
         if self.allowed_types and file.content_type not in self.allowed_types:
             raise HTTPException(status_code=400, detail="不支持的文件类型")
+
+    def _validate_file_by_path(self, file_path: str) -> str:
+        """验证文件
+        
+        Args:
+            file_path: 文件路径
+            
+        Raises:
+            ValueError: 文件验证失败
+            FileNotFoundError: 文件不存在
+        """
+        # 检查文件是否存在
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"文件不存在: {file_path}")
+        
+        # 检查文件读取权限
+        if not os.access(file_path, os.R_OK):
+            raise ValueError(f"没有文件读取权限: {file_path}")
+        
+        # 检查文件大小
+        file_size = os.path.getsize(file_path)
+        if file_size > self.max_size:
+            raise ValueError(f"文件大小超过限制: {file_size} > {self.max_size}")
+
+        import mimetypes
+        file_type, _ = mimetypes.guess_type(file_path)
+
+        # 检查文件类型
+        if self.allowed_types:
+            if file_type not in self.allowed_types:
+                raise ValueError(f"不支持的文件类型: {file_type}")
+            
+        return file_type or "application/octet-stream"
             
     async def upload_file(
         self,
@@ -246,3 +295,86 @@ class FileService:
             file_info["filename"], 
             file_info["file_type"]
         )
+
+    def upload_file_by_path(
+        self,
+        file_path: str,
+        description: Optional[str] = None,
+        uploader: Optional[str] = None
+    ) -> dict:
+        """通过文件路径上传文件
+        
+        Args:
+            file_path: 本地文件路径
+            description: 文件描述
+            uploader: 上传者
+            
+        Returns:
+            dict: 文件信息字典
+            
+        Raises:
+            FileNotFoundError: 当文件不存在时
+            PermissionError: 当没有文件读取权限时
+        """
+        
+        # 验证文件
+        file_type = self._validate_file_by_path(file_path)
+        
+        # 获取文件名
+        filename = os.path.basename(file_path)
+        
+        # 计算文件哈希值
+        file_hash = self._calculate_hash_by_path(file_path)
+        
+        # 获取文件存储路径（复制到指定位置）
+        target_path = self._get_file_path(file_hash, filename)
+        
+        # 检查文件是否已存在
+        existing_file = self.db.get_by_id("files", file_hash)
+        if existing_file:
+            # 文件已存在，返回现有文件信息
+            return {
+                "file_id": existing_file["id"],
+                "filename": existing_file["filename"],
+                "file_type": existing_file["file_type"],
+                "file_size": existing_file["file_size"],
+                "file_hash": existing_file["file_hash"],
+                "file_path": existing_file["file_path"],
+                "upload_time": existing_file["upload_time"],
+                "description": existing_file.get("description"),
+                "uploader": existing_file.get("uploader"),
+                "is_new": False
+            }
+        
+        # 复制文件到目标位置
+        shutil.copy2(file_path, target_path)
+                
+        # 记录文件信息
+        file_info = {
+            "id": file_hash,
+            "filename": filename,
+            "file_type": file_type,
+            "file_size": os.path.getsize(target_path),
+            "file_hash": file_hash,
+            "file_path": target_path,
+            "upload_time": datetime.now().isoformat(),
+            "description": description,
+            "uploader": uploader,
+            "download_count": 0,
+            "is_deleted": 0
+        }
+        
+        self.db.insert("files", file_info)
+        
+        return {
+            "file_id": file_info["id"],
+            "filename": file_info["filename"],
+            "file_type": file_info["file_type"],
+            "file_size": file_info["file_size"],
+            "file_hash": file_info["file_hash"],
+            "file_path": file_info["file_path"],
+            "upload_time": file_info["upload_time"],
+            "description": file_info["description"],
+            "uploader": file_info["uploader"],
+            "is_new": True
+        }

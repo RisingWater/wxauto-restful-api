@@ -1,8 +1,12 @@
 from app.utils.wx_package_manager import has_feature
 from typing import Optional, Union, List
+from fastapi.responses import FileResponse, Response
 from app.models.response import APIResponse
 from app.services.file_service import FileService
-from .init import WeChat, WxClient, Chat, HumanMessage
+from .init import WeChat, WxClient, WeChatLogin, Chat, HumanMessage
+from PIL import Image
+import tempfile
+import shutil
 import os
 
 def get_wechat(wxname: str) -> WeChat:
@@ -20,6 +24,15 @@ def get_wechat(wxname: str) -> WeChat:
         wx = WxClient[wxname]
     else:
         wx = WeChat(nickname=wxname)
+    return wx
+
+def get_wechat_login() -> WeChatLogin:
+    """获取微信实例
+        
+    Returns:
+        WeChatLogin实例
+    """
+    wx = WeChatLogin()
     return wx
 
 def get_wechat_subwin(wxname: str, who: str) -> Optional[Chat]:
@@ -212,46 +225,69 @@ class WeChatService:
                     is_media_message = any(media_type in msg_class_name for media_type in ['Image', 'Video'])
                     
                     if is_media_message and hasattr(msg, 'download'):
+                        # 创建临时目录
+                        temp_dir = tempfile.mkdtemp()
+
                         try:
-                            # 设置下载路径到 H:\ 盘
-                            download_dir = "H:\\wechat_downloads"
-                            os.makedirs(download_dir, exist_ok=True)
+                            # 下载文件到临时目录
+                            file_path = msg.download(dir_path=temp_dir, timeout=30)
                             
-                            # 下载文件
-                            file_path = msg.download(dir_path=download_dir, timeout=30)
+                            # 调用上传接口
+                            file_service = FileService()
+                            upload_result = file_service.upload_file_by_path(
+                                file_path=str(file_path),
+                                description=f"WeChat file from {msg_info.get('chat_name', 'unknown')}",
+                                uploader="wechat_bot"
+                            )
                             
-                            # 更新消息信息
+                            # 更新消息信息，使用file_id作为文件名
                             msg_info.update({
-                                "file_name": file_path.name,
+                                "file_id": upload_result["file_id"],  # 使用file_id作为标识
+                                "file_info": upload_result,  # 保存完整的文件信息
                                 "download_success": True
                             })
-                            
+                                
                         except Exception as download_error:
                             msg_info.update({
                                 "download_error": str(download_error),
                                 "download_success": False
                             })
+                        finally:
+                            # 确保删除临时目录和文件
+                            shutil.rmtree(temp_dir, ignore_errors=True)
+
                     # 文件下载处理方法（有 download 方法三个参数）
                     elif 'File' in msg_class_name and hasattr(msg, 'download'):
-                        try:
-                            # 设置下载路径到 H:\ 盘
-                            download_dir = "H:\\wechat_downloads"
-                            os.makedirs(download_dir, exist_ok=True)
+                        # 创建临时目录
+                        temp_dir = tempfile.mkdtemp()
 
-                            # 下载文件
-                            file_path = msg.download(dir_path=download_dir, force_click=False, timeout=30)
+                        try:
+                            # 下载文件到临时目录
+                            file_path = msg.download(dir_path=temp_dir, force_click=False, timeout=30)
                             
-                            # 更新消息信息
+                            # 调用上传接口
+                            file_service = FileService()
+                            upload_result = file_service.upload_file_by_path(
+                                file_path=str(file_path),
+                                description=f"WeChat file from {msg_info.get('chat_name', 'unknown')}",
+                                uploader="wechat_bot"
+                            )
+                            
+                            # 更新消息信息，使用file_id作为文件名
                             msg_info.update({
-                                "file_name": file_path.name,
+                                "file_id": upload_result["file_id"],  # 使用file_id作为标识
+                                "file_info": upload_result,  # 保存完整的文件信息
                                 "download_success": True
                             })
-
                         except Exception as download_error:
                             msg_info.update({
                                 "download_error": str(download_error),
                                 "download_success": False
                             })
+                        finally:
+                            # 确保删除临时目录和文件
+                            shutil.rmtree(temp_dir, ignore_errors=True)
+                        
                     # 单独处理语音消息（有 to_text 方法）
                     elif 'Voice' in msg_class_name and hasattr(msg, 'to_text'):
                         try:
@@ -274,15 +310,15 @@ class WeChatService:
                         try:
                             url_content = msg.get_url()
                             msg_info.update({
-                                "url_content": url_content,
-                                "url_get_success": True
+                                "url": url_content,
+                                "get_url_success": True
                             })
 
                         except Exception as url_error:
                             msg_info.update({
-                                "url_content": "",
-                                "url_get_error": str(url_error),
-                                "url_get_success": False
+                                "url": "",
+                                "get_url_error": str(url_error),
+                                "get_url_success": False
                             })
                     
                     processed_messages.append(msg_info)
@@ -394,3 +430,51 @@ class WeChatService:
                 return APIResponse(success=True, message='离线', data={'status': 'offline', 'online': False})
         except Exception as e:
             return APIResponse(success=False, message=str(e))
+
+    def login(
+            self,
+            wxname: Optional[str] = None
+        ) -> APIResponse:
+        try:
+            wx = get_wechat_login()
+            result = wx.Login()
+            if result:
+                return APIResponse(success=True, message='已登录或登录成功', data={'status': 'ok'})
+            else:
+                return APIResponse(success=True, message='未能登录成功，请获取二维码后扫码登录', data={'status': 'need_qrcode'})
+        except Exception as e:
+            return APIResponse(success=False, message=str(e))
+
+    def qrcode(
+            self,
+            wxname: Optional[str] = None
+    ) -> FileResponse:
+        try:
+            wx = get_wechat_login()
+            pil_image = wx.GetQRCode() 
+            if pil_image:
+                # 创建临时文件
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
+                    pil_image.save(tmp_file, format='PNG')
+                    tmp_file_path = tmp_file.name
+            
+                # 返回文件响应
+                return FileResponse(
+                    path=tmp_file_path,
+                    media_type="image/png",
+                    filename="qrcode.png",
+                    background=lambda: os.unlink(tmp_file_path)  # 响应完成后删除临时文件
+                )
+            else:
+                # 返回默认错误图片或空响应
+                return Response(
+                    content="QR code not available",
+                    status_code=404,
+                    media_type="text/plain"
+                )
+        except Exception as e:
+            return Response(
+                content=f"Error generating QR code: {str(e)}",
+                status_code=500,
+                media_type="text/plain"
+            )

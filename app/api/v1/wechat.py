@@ -236,6 +236,30 @@ async def is_online(
     """微信是否在线（wxautox特有）"""
     return service.is_online(wxname=request.wxname)
 
+@router.post(
+    "/login", 
+    operation_id="登录微信", 
+    response_model=APIResponse,
+    summary="登录微信"
+)
+async def login(
+    request: LoginRequest,
+    service: WeChatService = Depends()
+):
+    return service.login(wxname=request.wxname)
+
+@router.post(
+    "/qrcode", 
+    operation_id="获取登录微信二维码", 
+    response_model=APIResponse,
+    summary="获取登录微信二维码"
+)
+async def qrcode(
+    request: QRCodeRequest,
+    service: WeChatService = Depends()
+):
+    return service.qrcode(wxname=request.wxname)
+
 # @router.post("/switch/contact", operation_id="[wx]切换到联系人页面", response_model=APIResponse)
 # @conditional_route(has_page_switch_feature)
 # async def switch_to_contact_page(

@@ -11,6 +11,7 @@ from pythoncom import CoInitialize
 # 动态导入wx包
 WeChat = get_wx_class("WeChat")
 Chat = get_wx_class("Chat")
+WeChatLogin = get_wx_class("WeChatLogin")
 HumanMessage = wx_manager.package.msgs.base.HumanMessage
 try:
     get_wx_clients = get_wx_function("get_wx_clients")
