@@ -5,6 +5,7 @@ from app.models.file import FileInfo, FileUploadResponse
 from app.services.file_service import FileService
 from app.utils.auth import get_current_token
 from app.models.base import QueryParams
+from urllib.parse import quote
 
 router = APIRouter()
 file_service = FileService()
@@ -119,12 +120,15 @@ async def download_file(
     """
     try:
         file_path, filename, content_type = await file_service.download_file(file_id)
+
+        # 对文件名进行URL编码，处理中文字符
+        encoded_filename = quote(filename)
         
         return FileResponse(
             path=file_path,
             filename=filename,
             media_type=content_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"}
         )
     except HTTPException:
         raise
