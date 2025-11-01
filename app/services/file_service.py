@@ -170,6 +170,8 @@ class FileService:
         # 检查文件是否已存在
         existing_file = self.db.get_by_id("files", file_hash)
         if existing_file:
+            #清除is_deleted
+            self.db.update("files", file_hash, {"is_deleted": 0})
             # 文件已存在，返回现有文件信息
             return FileUploadResponse(
                 file_id=existing_file["id"],
@@ -332,6 +334,8 @@ class FileService:
         # 检查文件是否已存在
         existing_file = self.db.get_by_id("files", file_hash)
         if existing_file:
+            #清除is_deleted
+            self.db.update("files", file_hash, {"is_deleted": 0})
             # 文件已存在，返回现有文件信息
             return {
                 "file_id": existing_file["id"],
