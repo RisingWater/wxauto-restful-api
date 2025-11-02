@@ -443,6 +443,7 @@ class WeChatService:
         ) -> APIResponse:
         try:
             wx = get_wechat_login()
+            wx.ClearHint()
             result = wx.Login()
             if result:
                 return APIResponse(success=True, message='已登录或登录成功', data={'status': 'ok'})
