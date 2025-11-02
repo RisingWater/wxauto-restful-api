@@ -26,6 +26,18 @@ def get_wechat(wxname: str) -> WeChat:
         wx = WeChat(nickname=wxname)
     return wx
 
+def get_new_wechat(wxname: str) -> WeChat:
+    """获取微信实例
+    
+    Args:
+        wxname: 微信客户端名称
+        
+    Returns:
+        WeChat实例
+    """
+    wx = WeChat(nickname=wxname)
+    return wx
+
 def get_wechat_login() -> WeChatLogin:
     """获取微信实例
         
@@ -420,7 +432,7 @@ class WeChatService:
         ) -> APIResponse:
         
         try:
-            wx = get_wechat(wxname)
+            wx = get_new_wechat(wxname)
             return APIResponse(success=True, message='在线', data={'status': 'online', 'online': True})
         except Exception as e:
             return APIResponse(success=False, message=str(e))
