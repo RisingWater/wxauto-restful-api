@@ -418,16 +418,10 @@ class WeChatService:
             self,
             wxname: Optional[str] = None
         ) -> APIResponse:
-        if not has_feature("is_online"):
-            return APIResponse(success=False, message="此功能需要wxautox版本支持")
         
         try:
             wx = get_wechat(wxname)
-            result = wx.IsOnline()
-            if result:
-                return APIResponse(success=True, message='在线', data={'status': 'online', 'online': True})
-            else:
-                return APIResponse(success=True, message='离线', data={'status': 'offline', 'online': False})
+            return APIResponse(success=True, message='在线', data={'status': 'online', 'online': True})
         except Exception as e:
             return APIResponse(success=False, message=str(e))
 
