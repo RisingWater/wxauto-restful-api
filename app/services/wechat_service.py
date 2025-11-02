@@ -448,7 +448,7 @@ class WeChatService:
             if result:
                 return APIResponse(success=True, message='已登录或登录成功', data={'status': 'ok'})
             else:
-                return APIResponse(success=True, message='未能登录成功，请获取二维码后扫码登录', data={'status': 'need_qrcode'})
+                return APIResponse(success=False, message='未能登录成功，请获取二维码后扫码登录', data={'status': 'need_qrcode'})
         except Exception as e:
             return APIResponse(success=False, message=str(e))
 
