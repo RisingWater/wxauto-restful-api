@@ -8,6 +8,7 @@ from PIL import Image
 import tempfile
 import shutil
 import os
+import win32gui
 
 def get_wechat(wxname: str) -> WeChat:
     """获取微信实例
@@ -18,25 +19,31 @@ def get_wechat(wxname: str) -> WeChat:
     Returns:
         WeChat实例
     """
-    if (not wxname) and WxClient:
-        wx = list(WxClient.values())[0]
-    elif wxname in WxClient:
-        wx = WxClient[wxname]
-    else:
-        wx = WeChat(nickname=wxname)
-    return wx
+    # 检查字典是否为空或者实例无效
+    if WxClient:  # 字典不为空
+        # 获取第一个实例
+        cached_key = list(WxClient.keys())[0]
+        cached_wx = WxClient[cached_key]
+        # 检查窗口是否可用
+        if not win32gui.IsWindow(cached_wx.core.HWND):
+            print(f"微信窗口实例已不存在，清空缓存准备重建实例")
+            WxClient.clear()  # 清空字典
 
-def get_new_wechat(wxname: str) -> WeChat:
-    """获取微信实例
-    
-    Args:
-        wxname: 微信客户端名称
-        
-    Returns:
-        WeChat实例
-    """
-    wx = WeChat(nickname=wxname)
-    return wx
+    if not WxClient:  # 字典为空（要么本来空，要么刚被清空）
+        print(f"重建微信窗口实例")
+        try:
+            wx = WeChat() # 这里失败也会抛出异常
+        except Exception as e:
+            print(f"创建微信窗口实例失败，窗口不存在，需要登录: {e}")
+            raise  # 直接重新抛出相同的异常
+
+        if win32gui.IsWindow(wx.core.HWND):
+            WxClient["default"] = wx  # 添加键值对
+        else:
+            print(f"微信窗口异常，窗口不存在")
+            raise Exception("微信窗口异常，微信窗口不存在")
+
+    return list(WxClient.values())[0]  # 返回第一个（也是唯一一个）值
 
 def get_wechat_login() -> WeChatLogin:
     """获取微信实例
@@ -432,7 +439,7 @@ class WeChatService:
         ) -> APIResponse:
         
         try:
-            wx = get_new_wechat(wxname)
+            wx = get_wechat(wxname)
             return APIResponse(success=True, message='在线', data={'status': 'online', 'online': True})
         except Exception as e:
             return APIResponse(success=False, message=str(e))
