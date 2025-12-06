@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TypeVar, Generic
+from typing import Any, Dict, List, Optional, TypeVar, Generic, Type
 from pydantic import BaseModel, Field
 from uuid import uuid4
 
@@ -50,7 +50,7 @@ class BaseDatabase:
         """断开数据库连接"""
         raise NotImplementedError
     
-    def create_table(self, model: type[BaseDBModel]) -> None:
+    def create_table(self, model: Type[BaseDBModel]) -> None:
         """创建数据表
         
         Args:
