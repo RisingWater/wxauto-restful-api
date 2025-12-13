@@ -9,6 +9,51 @@ import tempfile
 import shutil
 import os
 import win32gui
+import ctypes
+from ctypes import wintypes
+
+# 初始化
+kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+
+# 函数声明
+kernel32.OpenEventW.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.LPCWSTR]
+kernel32.OpenEventW.restype = wintypes.HANDLE
+kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+kernel32.WaitForSingleObject.restype = wintypes.DWORD
+kernel32.ResetEvent.argtypes = [wintypes.HANDLE]
+kernel32.ResetEvent.restype = wintypes.BOOL
+kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+kernel32.CloseHandle.restype = wintypes.BOOL
+
+def check_and_reset_wechat_event():
+    """检查微信消息Event是否被触发，如果是则Reset"""
+    event_name = "Global\\TrayMonitor_RecvMessageEvent"
+    
+    # 1. 打开Event
+    h_event = kernel32.OpenEventW(
+        0x1F0003,       # EVENT_ALL_ACCESS
+        False,          # 不继承
+        event_name
+    )
+    
+    if not h_event:
+        print(f"无法打开Event: {event_name}")
+        return False
+    
+    # 2. 立即检查（不等待）
+    result = kernel32.WaitForSingleObject(h_event, 0)
+    
+    if result == 0:  # WAIT_OBJECT_0
+        # 3. Event被触发，Reset它
+        kernel32.ResetEvent(h_event):
+        print("检测到微信新消息，Event已Reset")
+        return True
+    else:
+        print("未检测到新消息")
+        return False
+
+    # 4. 关闭句柄
+    kernel32.CloseHandle(h_event)
 
 def get_wechat(wxname: str) -> WeChat:
     """获取微信实例
@@ -230,6 +275,10 @@ class WeChatService:
         """获取下一个新消息，并自动下载媒体文件和转换语音"""
     
         try:
+            recved_event = check_and_reset_wechat_event()
+            if not recved_event:
+                return APIResponse(success=True, message='', data={})
+
             wx = get_wechat(wxname)
             result = wx.GetNextNewMessage(filter_mute=filter_mute)
             
