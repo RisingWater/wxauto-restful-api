@@ -45,7 +45,7 @@ def check_and_reset_wechat_event():
     
     if result == 0:  # WAIT_OBJECT_0
         # 3. Event被触发，Reset它
-        kernel32.ResetEvent(h_event):
+        kernel32.ResetEvent(h_event)
         print("检测到微信新消息，Event已Reset")
         return True
     else:
