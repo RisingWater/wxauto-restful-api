@@ -25,6 +25,30 @@ kernel32.ResetEvent.restype = wintypes.BOOL
 kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
 kernel32.CloseHandle.restype = wintypes.BOOL
 
+# Windows API
+user32 = ctypes.WinDLL('user32', use_last_error=True)
+
+# 常量
+SW_SHOWMINIMIZED = 2   # 最小化
+SW_RESTORE = 9         # 还原
+
+def minimize_window(hwnd):
+    """最小化窗口"""
+    if not hwnd:
+        return False
+    
+    # 参数1: HWND, 参数2: 显示命令
+    result = user32.ShowWindow(hwnd, SW_SHOWMINIMIZED)
+    return bool(result)
+
+def restore_window(hwnd):
+    """还原窗口（从最小化/最大化恢复）"""
+    if not hwnd:
+        return False
+    
+    result = user32.ShowWindow(hwnd, SW_RESTORE)
+    return bool(result)
+
 def check_and_reset_wechat_event():
     """检查微信消息Event是否被触发，如果是则Reset"""
     event_name = "Global\\TrayMonitor_RecvMessageEvent"
@@ -136,7 +160,9 @@ class WeChatService:
         """发送消息"""
         try:
             wx = get_wechat(wxname)
+            restore_window(wx.core.HWND)
             result = wx.SendMsg(msg=msg, who=who, clear=clear, at=at, exact=exact)
+            minimize_window(wx.core.HWND)
             return APIResponse(success=bool(result), message=result['message'], data=result['data'])
         except Exception as e:
             return APIResponse(success=False, message=str(e))
@@ -162,7 +188,12 @@ class WeChatService:
             
             # 发送文件
             wx = get_wechat(wxname)
+
+            restore_window(wx.core.HWND)
+
             result = wx.SendFiles(filepath=file_info.file_path, who=who, exact=exact)
+
+            minimize_window(wx.core.HWND)
             
             if result:
                 return APIResponse(
@@ -273,13 +304,14 @@ class WeChatService:
         wxname: Optional[str] = None
     ) -> APIResponse:
         """获取下一个新消息，并自动下载媒体文件和转换语音"""
+
+        recved_event = check_and_reset_wechat_event()
+        if not recved_event:
+            return APIResponse(success=True, message='', data={})
     
         try:
-            recved_event = check_and_reset_wechat_event()
-            if not recved_event:
-                return APIResponse(success=True, message='', data={})
-
             wx = get_wechat(wxname)
+            restore_window(wx.core.HWND)
             result = wx.GetNextNewMessage(filter_mute=filter_mute)
             
             if result and 'msg' in result:
@@ -397,6 +429,9 @@ class WeChatService:
             
         except Exception as e:
             return APIResponse(success=False, message=str(e))
+
+        finally:
+            minimize_window(wx.core.HWND)
 
     def send_quote_by_id(
             self,
