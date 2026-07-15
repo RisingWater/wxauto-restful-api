@@ -319,7 +319,6 @@ class WeChatService:
                 
                 for msg in result['msg']:
                     msg_info = msg.info
-                    msg_info['raw'] = msg
                     msg_class_name = msg.__class__.__name__
 
                     if hasattr(msg, 'sender_remark'):
