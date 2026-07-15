@@ -319,7 +319,13 @@ class WeChatService:
                 
                 for msg in result['msg']:
                     msg_info = msg.info
+                    msg_info['raw'] = msg
                     msg_class_name = msg.__class__.__name__
+
+                    if hasattr(msg, 'sender_remark'):
+                        msg_info.update({
+                            "sender_remark": msg.sender_remark
+                        })
                     
                     # 处理图片、视频（有 download 方法两个参数）
                     is_media_message = any(media_type in msg_class_name for media_type in ['Image', 'Video'])
